@@ -112,8 +112,8 @@ pi-miniproject-1/
 This project is for educational purposes as part of university coursework.
 
 ## 👥 Team
-- Project development as part of Proyecto Integrador 1
-- University course: Proyecto Integrador 1
+- Project development as part of Proyecto Integrador I
+- University course: Proyecto Integrador I
 
 ---
 
