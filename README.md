@@ -113,7 +113,7 @@ This project is for educational purposes as part of university coursework.
 
 ## 👥 Team
 - Project development as part of Proyecto Integrador 1
-- University course: Semestre 2
+- University course: Proyecto Integrador 1
 
 ---
 
