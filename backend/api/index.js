@@ -5,7 +5,6 @@ const app = express();
 const { connectDB } = require("./config/database");
 connectDB();
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,8 +31,6 @@ const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
-
-
 
 
 if (require.main === module) {
