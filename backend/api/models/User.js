@@ -48,6 +48,24 @@ var userSchema = new mongoose.Schema({
     isActive:{
     type:Boolean,
     default:true
+    },
+    resetPasswordToken: {
+        type: String,
+        required: false,
+        default: null
+    },
+    resetPasswordExpires: {
+        type: Date,
+        required: false,
+        default: null
+    },
+    loginAttempts:{
+        type:Number,
+        default:0
+    },
+    lockUntil:{
+        type:Date,
+        default:null
     }
     
 }, { timestamps: true });

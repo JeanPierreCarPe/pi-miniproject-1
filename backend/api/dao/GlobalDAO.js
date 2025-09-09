@@ -57,6 +57,15 @@ class GlobalDAO {
     }
     
     
+    
+    async findOne(filter = {}) {
+        try {
+            return await this.model.findOne(filter);
+        } catch (error) {
+            throw new Error(`Error finding document: ${error.message}`);
+        }
+    }
+
 
 }
 module.exports = GlobalDAO;

@@ -8,9 +8,30 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+// CORS config via env
+const allowedOrigins = (process.env.CORS_ORIGIN || "*")
+  .split(",")
+  .map((s) => s.trim())
+  .filter((s) => s.length > 0);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
+};
+app.use(cors(corsOptions));
 
 app.get("/", (req, res) => res.send("Server is running"));
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+// routes
+const authRoutes = require("./routes/authRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 
 
 
