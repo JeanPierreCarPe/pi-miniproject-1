@@ -1,19 +1,24 @@
-console.log('main.js cargado');
+import './style.css'
+import javascriptLogo from './javascript.svg'
+import viteLogo from '/vite.svg'
+import { setupCounter } from './counter.js'
 
-import { Login } from './pages/Login.js';
-import './style.css';
+document.querySelector('#app').innerHTML = `
+  <div>
+    <a href="https://vite.dev" target="_blank">
+      <img src="${viteLogo}" class="logo" alt="Vite logo" />
+    </a>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
+      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
+    </a>
+    <h1>Hello Vite!</h1>
+    <div class="card">
+      <button id="counter" type="button"></button>
+    </div>
+    <p class="read-the-docs">
+      Click on the Vite logo to learn more
+    </p>
+  </div>
+`
 
-console.log('Importaciones completadas');
-
-const app = document.getElementById('app');
-console.log('Elemento app:', app);
-
-if (app) {
-  app.innerHTML = '';
-  const loginComponent = Login();
-  console.log('Componente login creado:', loginComponent);
-  app.appendChild(loginComponent);
-  console.log('Componente agregado al DOM');
-} else {
-  console.error('No se encontró el elemento con id "app"');
-}
+setupCounter(document.querySelector('#counter'))

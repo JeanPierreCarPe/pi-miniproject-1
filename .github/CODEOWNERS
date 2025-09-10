@@ -1,6 +1,0 @@
-# CODEOWNERS file for pi-miniproject-1
-# Automatically adds @JeanPierreCarPe as reviewer for all PRs
-# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-
-# Global rule - all files require review from the repository owner
-* @JeanPierreCarPe
