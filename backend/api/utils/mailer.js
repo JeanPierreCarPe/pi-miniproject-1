@@ -16,11 +16,11 @@ const createTransport = () => {
 };
 
 const transport = createTransport();
-const getAppUrl = () => process.env.APP_URL || `http://localhost:3000`;
+const getAppUrl = () => process.env.APP_URL || `http://localhost:5173`;
 
 async function sendPasswordResetEmail({ to, token }) {
     const from = process.env.MAIL_FROM || "no-reply@example.com";
-    const resetUrl = `${getAppUrl()}/reset?token=${encodeURIComponent(token)}`;
+    const resetUrl = `${getAppUrl()}/#/reset-password?token=${encodeURIComponent(token)}`;
     const subject = "Restablecer tu contraseña";
     const text = `Usa este enlace para restablecer tu contraseña (válido 1 hora y de un solo uso):\n${resetUrl}`;
     const html = `
