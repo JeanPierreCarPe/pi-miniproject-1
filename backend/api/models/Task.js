@@ -5,10 +5,14 @@ var userSchema = new mongoose.Schema({
     Title:{
         type:String,
         required:true,
+        trim: true,
+        maxlength: 50
     },
     detail:{
         type:String,
         required:false,
+        trim: true,
+        maxlength: 500
     },
     initDate:{
         type:Date,
@@ -20,14 +24,14 @@ var userSchema = new mongoose.Schema({
     },
     stageName:{
         type:String,
-        enum: ['backlog', 'doing', 'done'],
-        match: /^[a-zA-Z]+$/,
+        enum: ['Por hacer', 'Haciendo', 'Hecho'],
         required:true,
-        default: 'backlog'
+        default: 'Por hacer'
     },
     ownerId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        index: true
     },
     isActive:{
     type:Boolean,
@@ -35,6 +39,8 @@ var userSchema = new mongoose.Schema({
     }
 
 }, { timestamps: true });
+
+userSchema.index({ ownerId: 1, initDate: 1 });
 
 //Export the model
 module.exports = mongoose.model('Task', userSchema);
