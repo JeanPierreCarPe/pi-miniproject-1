@@ -70,6 +70,13 @@
       color: var(--blanco);
     }
 
+    .user-greeting {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--blanco);
+      margin-left: 12px;
+    }
+
     .menu-option {
       display: flex;
       align-items: center;
@@ -337,6 +344,7 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
       border-left: 4px solid var(--cafe-principal);
       transition: transform 0.3s ease;
+      position: relative;
     }
 
     .task-card:hover {
@@ -356,26 +364,29 @@
       font-size: 16px;
       color: var(--cafe-principal);
       margin-bottom: 6px;
+      padding-right: 60px;
     }
 
-    .task-priority {
+    .task-status-badge {
       padding: 4px 8px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 500;
+      margin-bottom: 8px;
+      display: inline-block;
     }
 
-    .priority-alta {
-      background-color: #FEE2E2;
-      color: var(--rojo);
-    }
-
-    .priority-media {
+    .status-por-hacer {
       background-color: #FEF3C7;
       color: var(--naranja);
     }
 
-    .priority-baja {
+    .status-haciendo {
+      background-color: #DBEAFE;
+      color: var(--azul);
+    }
+
+    .status-hecho {
       background-color: #D1FAE5;
       color: var(--verde);
     }
@@ -396,12 +407,14 @@
       justify-content: space-between;
       color: var(--gris-claro);
       font-size: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .task-actions {
+      position: absolute;
+      top: 16px;
+      right: 16px;
       display: flex;
-      justify-content: flex-end;
       gap: 8px;
     }
 
@@ -412,7 +425,7 @@
       cursor: pointer;
       font-size: 14px;
       transition: color 0.2s ease;
-      padding: 6px;
+      padding: 4px;
       border-radius: 4px;
     }
 
@@ -604,7 +617,7 @@
     <div>
       <div class="logo">
         <i class="fas fa-tasks logo-icon"></i>
-        <div class="logo-text">TaskFlow</div>
+        <div class="user-greeting">Hola, Laura</div>
       </div>
 
       <!-- MIS TAREAS como opción principal -->
@@ -715,15 +728,6 @@
         </div>
         
         <div class="form-group">
-          <label for="prioridad">Prioridad</label>
-          <select id="prioridad">
-            <option value="baja">Baja</option>
-            <option value="media">Media</option>
-            <option value="alta">Alta</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
           <label for="estado">Estado</label>
           <select id="estado">
             <option value="por-hacer">Por Hacer</option>
@@ -751,22 +755,22 @@
           <i class="fas fa-user-circle" style="font-size: 80px; color: var(--cafe-principal);"></i>
         </div>
         <div>
-          <div class="profile-name">Juan Pérez</div>
-          <div class="profile-email">juan.perez@ejemplo.com</div>
+          <div class="profile-name">Laura Martínez</div>
+          <div class="profile-email">laura.martinez@ejemplo.com</div>
         </div>
       </div>
       <div class="form-grid">
         <div class="form-group">
           <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" value="Juan Pérez">
+          <input type="text" id="nombre" value="Laura Martínez">
         </div>
         <div class="form-group">
           <label for="telefono">Número de teléfono</label>
-          <input type="tel" id="telefono" value="+57 300 123 4567">
+          <input type="tel" id="telefono" value="+57 301 234 5678">
         </div>
         <div class="form-group full-width">
           <label for="email">Correo electrónico</label>
-          <input type="email" id="email" value="juan.perez@ejemplo.com">
+          <input type="email" id="email" value="laura.martinez@ejemplo.com">
         </div>
       </div>
       <button><i class="fas fa-save"></i> Guardar cambios</button>
@@ -857,7 +861,6 @@
           title: "Preparar presentación",
           fecha: "23 de Mayo, 2025",
           hora: "10:00 AM",
-          priority: "alta",
           detail: "Preparar la presentación para la reunión de stakeholders del próximo lunes.",
           status: "por-hacer"
         },
@@ -866,7 +869,6 @@
           title: "Revisar documentación",
           fecha: "24 de Mayo, 2025",
           hora: "02:30 PM",
-          priority: "media",
           detail: "Revisar la documentación técnica del nuevo API antes de su lanzamiento.",
           status: "haciendo"
         },
@@ -875,7 +877,6 @@
           title: "Optimizar base de datos",
           fecha: "19 de Mayo, 2025",
           hora: "09:00 AM",
-          priority: "alta",
           detail: "Realizar optimización de consultas en la base de datos para mejorar el rendimiento.",
           status: "hecho"
         },
@@ -884,7 +885,6 @@
           title: "Actualizar dependencias",
           fecha: "26 de Mayo, 2025",
           hora: "11:45 AM",
-          priority: "baja",
           detail: "Actualizar las dependencias del proyecto a sus últimas versiones estables.",
           status: "haciendo"
         },
@@ -893,7 +893,6 @@
           title: "Testear funcionalidades",
           fecha: "28 de Mayo, 2025",
           hora: "04:20 PM",
-          priority: "media",
           detail: "Realizar pruebas de usabilidad de las nuevas funcionalidades implementadas.",
           status: "por-hacer"
         },
@@ -902,7 +901,6 @@
           title: "Redactar informe final",
           fecha: "30 de Mayo, 2025",
           hora: "03:15 PM",
-          priority: "alta",
           detail: "Preparar el informe final del proyecto con todos los detalles y resultados.",
           status: "haciendo"
         },
@@ -911,7 +909,6 @@
           title: "Reunión con equipo de diseño",
           fecha: "22 de Mayo, 2025",
           hora: "10:30 AM",
-          priority: "media",
           detail: "Revisar los avances del equipo de diseño y planificar próximos pasos.",
           status: "hecho"
         },
@@ -920,7 +917,6 @@
           title: "Actualizar documentación de API",
           fecha: "25 de Mayo, 2025",
           hora: "01:00 PM",
-          priority: "baja",
           detail: "Actualizar la documentación de la API con los últimos cambios realizados.",
           status: "por-hacer"
         }
@@ -948,19 +944,32 @@
           taskCard.className = 'task-card';
           taskCard.setAttribute('data-id', task.id);
           
+          // Determinar texto y clase para el badge de estado
+          let statusText = '';
+          let statusClass = '';
+          
+          if (task.status === 'por-hacer') {
+            statusText = 'Por Hacer';
+            statusClass = 'status-por-hacer';
+          } else if (task.status === 'haciendo') {
+            statusText = 'Haciendo';
+            statusClass = 'status-haciendo';
+          } else if (task.status === 'hecho') {
+            statusText = 'Hecho';
+            statusClass = 'status-hecho';
+          }
+          
           taskCard.innerHTML = `
-            <div class="task-header">
-              <div class="task-title">${task.title}</div>
-              <span class="task-priority priority-${task.priority}">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
+            <div class="task-actions">
+              <button class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
+              <button class="action-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
             </div>
+            <span class="task-status-badge ${statusClass}">${statusText}</span>
+            <div class="task-title">${task.title}</div>
             <div class="task-detail">${task.detail}</div>
             <div class="task-date-time">
               <span><i class="fas fa-calendar"></i> ${task.fecha}</span>
               <span><i class="fas fa-clock"></i> ${task.hora}</span>
-            </div>
-            <div class="task-actions">
-              <button class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
-              <button class="action-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
             </div>
           `;
           
