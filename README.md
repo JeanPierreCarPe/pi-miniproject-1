@@ -117,4 +117,4 @@ This project is for educational purposes as part of university coursework.
 
 ---
 
-**Status**: 🚧 In Development - Sprint 1.
+**Status**: 🚧 In Development - Sprint 1

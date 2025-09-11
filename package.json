@@ -1,0 +1,19 @@
+{
+  "name": "pi-miniproject-1",
+  "version": "1.0.0",
+  "description": "Task management application with SPA frontend and Express backend",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm ci && npm run build",
+    "start": "cd frontend && npm run preview",
+    "dev": "cd frontend && npm run dev"
+  },
+  "keywords": [
+    "task-manager",
+    "spa",
+    "vite",
+    "express"
+  ],
+  "author": "Cobolios",
+  "license": "MIT"
+}
