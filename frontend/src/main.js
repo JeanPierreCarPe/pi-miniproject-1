@@ -9,7 +9,33 @@ import './styles/layout.css'
 import './styles/form.css'
 import './styles/task.css'
 
+// Handle URLs without hash (from email links)
+function handleDirectURLs() {
+  const path = window.location.pathname
+  const search = window.location.search
+  const routes = ['/reset', '/reset-password', '/login', '/signup', '/forgot-password', '/tasks', '/profile']
+  
+  console.log('Direct URL check - path:', path, 'search:', search) // Debug log
+  
+  // If accessing a route directly (not through hash), redirect to hash version
+  if (path !== '/' && routes.includes(path)) {
+    const newUrl = `${window.location.origin}/#${path}${search}`
+    console.log('Redirecting to:', newUrl) // Debug log
+    window.location.replace(newUrl)
+    return true // Indicate we're redirecting
+  }
+  return false // No redirect needed
+}
+
+// Initialize the app
+function initializeApp() {
+console.log('Initializing app...')
+
 const root = document.getElementById('app')
+if (!root) {
+  console.error('App root element not found!')
+  return
+}
 // Shell layout with sidebar to match original UI
 root.innerHTML = `
   <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
@@ -43,18 +69,23 @@ root.innerHTML = `
 const sidebarEl = document.getElementById('sidebar')
 const menuToggle = document.getElementById('menuToggle')
 
-// Toggle sidebar
-menuToggle?.addEventListener('click', (e) => {
-  e.stopPropagation()
-  sidebarEl?.classList.toggle('active')
-  
-  // Ocultar/mostrar el botón hamburger con animación
-  if (sidebarEl?.classList.contains('active')) {
-    menuToggle.classList.add('hidden')
-  } else {
-    menuToggle.classList.remove('hidden')
-  }
-})
+console.log('Sidebar elements found:', { sidebarEl: !!sidebarEl, menuToggle: !!menuToggle })
+
+// Toggle sidebar - with null check
+if (menuToggle && sidebarEl) {
+  console.log('Setting up menu toggle event listener')
+  menuToggle.addEventListener('click', (e) => {
+    e.stopPropagation()
+    sidebarEl.classList.toggle('active')
+    
+    // Ocultar/mostrar el botón hamburger con animación
+    if (sidebarEl.classList.contains('active')) {
+      menuToggle.classList.add('hidden')
+    } else {
+      menuToggle.classList.remove('hidden')
+    }
+  })
+}
 
 // Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
@@ -80,34 +111,41 @@ function setupNavigationAutoClose() {
   
   navLinks.forEach(linkId => {
     const link = document.getElementById(linkId)
-    link?.addEventListener('click', () => {
-      // Only auto-close on mobile when sidebar is active
-      if (window.innerWidth <= 768 && sidebarEl?.classList.contains('active')) {
-        sidebarEl.classList.remove('active')
-        menuToggle?.classList.remove('hidden')
-      }
-    })
+    if (link && sidebarEl && menuToggle) {
+      link.addEventListener('click', () => {
+        // Only auto-close on mobile when sidebar is active
+        if (window.innerWidth <= 768 && sidebarEl.classList.contains('active')) {
+          sidebarEl.classList.remove('active')
+          menuToggle.classList.remove('hidden')
+        }
+      })
+    }
   })
 }
 
 // Initialize navigation auto-close
 setupNavigationAutoClose()
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-  // Show custom confirmation modal before logout
-  const confirmed = await showModal({
-    title: 'Cerrar Sesión',
-    message: '¿Estás seguro de que quieres cerrar sesión?',
-    confirmText: 'Cerrar Sesión',
-    cancelText: 'Cancelar',
-    type: 'confirm'
+
+// Logout button with null check
+const logoutBtn = document.getElementById('logoutBtn')
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    // Show custom confirmation modal before logout
+    const confirmed = await showModal({
+      title: 'Cerrar Sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      confirmText: 'Cerrar Sesión',
+      cancelText: 'Cancelar',
+      type: 'confirm'
+    })
+    
+    if (confirmed) {
+      // Stateless logout: remove local token and go to login
+      try { localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user') } catch {}
+      window.location.hash = '#/login'
+    }
   })
-  
-  if (confirmed) {
-    // Stateless logout: remove local token and go to login
-    try { localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user') } catch {}
-    window.location.hash = '#/login'
-  }
-})
+}
 
 /**
  * Updates user information in the sidebar
@@ -116,6 +154,8 @@ function updateUserInfo() {
   const userInfo = document.getElementById('userInfo')
   const userName = document.getElementById('userName')
   const userEmail = document.getElementById('userEmail')
+  
+  if (!userInfo || !userName || !userEmail) return
   
   try {
     const user = JSON.parse(localStorage.getItem('auth_user') || '{}')
@@ -146,17 +186,37 @@ function syncActiveLink() {
   })
   // Hide sidebar when not authenticated (except in auth routes)
   const authed = !!localStorage.getItem('auth_token')
-  const authRoute = ['#/login','#/signup','#/forgot-password','#/reset-password'].includes(window.location.hash)
-  document.getElementById('sidebar').style.display = authed && !authRoute ? 'flex' : 'none'
-  document.getElementById('menuToggle').style.display = authed && !authRoute ? 'block' : 'none'
+  const authRoute = ['#/login','#/signup','#/forgot-password','#/reset-password','#/reset'].includes(window.location.hash)
+  const sidebar = document.getElementById('sidebar')
+  const menuToggle = document.getElementById('menuToggle')
+  
+  if (sidebar) sidebar.style.display = authed && !authRoute ? 'flex' : 'none'
+  if (menuToggle) menuToggle.style.display = authed && !authRoute ? 'block' : 'none'
   
   // Update user info when authenticated
   if (authed && !authRoute) {
     updateUserInfo()
   }
 }
+
 window.addEventListener('hashchange', syncActiveLink)
 syncActiveLink()
 
 // Mount router into view container
-startRouter(document.getElementById('view'))
+const viewContainer = document.getElementById('view')
+if (viewContainer) {
+  startRouter(viewContainer)
+}
+
+} // End of initializeApp function
+
+// Execute the application initialization
+console.log('Starting application, current URL:', window.location.href)
+if (handleDirectURLs()) {
+  // If redirecting, don't initialize the app yet
+  console.log('Redirecting to hash-based URL, skipping initialization...')
+} else {
+  // Initialize the app normally
+  console.log('No redirect needed, initializing app...')
+  initializeApp()
+}

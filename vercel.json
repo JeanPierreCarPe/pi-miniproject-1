@@ -8,8 +8,40 @@
       "destination": "https://pi-miniproject-1.onrender.com/api/$1"
     },
     {
+      "source": "/reset-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reset",
+      "destination": "/index.html" 
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/signup", 
+      "destination": "/index.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/reset-password\\?token=(.*)",
+      "destination": "/#/reset-password?token=$1",
+      "permanent": false
+    },
+    {
+      "source": "/reset\\?token=(.*)", 
+      "destination": "/#/reset?token=$1",
+      "permanent": false
     }
   ],
   "headers": [

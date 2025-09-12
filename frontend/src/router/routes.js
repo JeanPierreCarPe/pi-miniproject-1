@@ -12,6 +12,7 @@ export default [
   { path: '/signup', component: Signup, auth: false },
   { path: '/forgot-password', component: ForgotPassword, auth: false },
   { path: '/reset-password', component: ResetPassword, auth: false },
+  { path: '/reset', component: ResetPassword, auth: false }, // Alias para compatibilidad
   { path: '/tasks', component: TasksList, auth: true },
   { path: '/tasks/new', component: TaskCreate, auth: true },
   { path: '/profile', component: Profile, auth: true },
