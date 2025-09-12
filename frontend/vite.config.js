@@ -2,17 +2,18 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   root: '.',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+    },
+  },
   build: {
     outDir: 'dist',
-    rollupOptions: {
-      input: {
-        main: 'index.html',
-        login: 'login.html',
-        register: 'register.html',
-        home: 'home.html',
-        recover: 'recover.html'
-      }
-    }
+    rollupOptions: { input: { main: 'index.html' } }
   },
   css: {
     postcss: './postcss.config.js'
