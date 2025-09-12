@@ -77,6 +77,8 @@ router.post("/logout", (req, res) => {
     return res.json({ message: "Logged out" });
 });
 
+// Funcionalidad de reset password deshabilitada para este sprint
+/* 
 // Password reset request
 router.post("/password/forgot", async (req, res) => {
     try {
@@ -104,7 +106,9 @@ router.post("/password/forgot", async (req, res) => {
         return res.status(500).json({ message: "Inténtalo de nuevo más tarde" });
     }
 });
+*/
 
+/*
 // Password reset confirm
 router.post("/password/reset", async (req, res) => {
     try {
@@ -139,5 +143,6 @@ router.get("/password/verify", async (req, res) => {
         return res.status(500).json({ message: "Inténtalo de nuevo más tarde" });
     }
 });
+*/
 
 module.exports = router;
