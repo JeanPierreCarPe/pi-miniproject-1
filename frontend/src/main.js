@@ -9,6 +9,34 @@ import './styles/layout.css'
 import './styles/form.css'
 import './styles/task.css'
 
+// Handle direct URLs without hash (for email links)
+function handleDirectURLs() {
+  const path = window.location.pathname
+  const search = window.location.search
+  const routes = ['/login', '/signup', '/tasks', '/profile']
+  // Rutas de reset password deshabilitadas para este sprint: '/reset', '/reset-password', '/forgot-password'
+  
+  console.log('Direct URL check - path:', path, 'search:', search)
+  
+  // If accessing a route directly (not through hash), redirect to hash version
+  if (path !== '/' && routes.some(route => path.startsWith(route))) {
+    const newUrl = `${window.location.origin}/#${path}${search}`
+    console.log('Redirecting direct URL to:', newUrl)
+    
+    // Use history.replaceState to avoid reload, then update hash manually
+    history.replaceState({}, '', newUrl)
+    
+    // Trigger hashchange event to make router work
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+    
+    return false // Continue with app initialization
+  }
+  return false
+}
+
+// Always initialize the app
+{
+
 const root = document.getElementById('app')
 // Shell layout with sidebar to match original UI
 root.innerHTML = `
@@ -146,7 +174,8 @@ function syncActiveLink() {
   })
   // Hide sidebar when not authenticated (except in auth routes)
   const authed = !!localStorage.getItem('auth_token')
-  const authRoute = ['#/login','#/signup','#/forgot-password','#/reset-password'].includes(window.location.hash)
+  const authRoute = ['#/login','#/signup'].includes(window.location.hash)
+  // Reset password routes deshabilitadas: '#/forgot-password','#/reset-password','#/reset'
   document.getElementById('sidebar').style.display = authed && !authRoute ? 'flex' : 'none'
   document.getElementById('menuToggle').style.display = authed && !authRoute ? 'block' : 'none'
   
@@ -158,5 +187,15 @@ function syncActiveLink() {
 window.addEventListener('hashchange', syncActiveLink)
 syncActiveLink()
 
+// Handle direct URLs first
+handleDirectURLs()
+
 // Mount router into view container
-startRouter(document.getElementById('view'))
+const viewElement = document.getElementById('view')
+if (viewElement) {
+  startRouter(viewElement)
+} else {
+  console.error('View element not found')
+}
+
+} // End of block

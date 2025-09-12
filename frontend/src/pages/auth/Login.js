@@ -165,7 +165,8 @@ export default function Login() {
               <form id="loginForm" class="form">
                 <div class="form-group" id="group-email"><label for="email">Correo electrónico</label><input id="email" type="email" placeholder="Correo" /></div>
                 <div class="form-group" id="group-password"><label for="password">Contraseña</label><input id="password" type="password" placeholder="Contraseña" /></div>
-                <div class="forgot-password-link"><a href="#/forgot-password">¿Olvidaste tu contraseña?</a></div>
+                <!-- Funcionalidad de recuperar contraseña deshabilitada para este sprint -->
+                <!-- <div class="forgot-password-link"><a href="#/forgot-password">¿Olvidaste tu contraseña?</a></div> -->
                 <button id="loginBtn" class="btn" type="submit" disabled style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px">
                   <span id="btn-text">Iniciar sesión</span>
                   <div id="spinner" style="display:none;width:16px;height:16px;border:2px solid transparent;border-top:2px solid #fff;border-radius:50%;animation:spin 1s linear infinite"></div>
@@ -278,8 +279,16 @@ export default function Login() {
     
     try {
       const res = await login({ email: email.value.trim(), password: password.value })
-      setUser(res.user); setToken(res.token)
-      window.location.hash = '#/tasks'
+      
+      // Set user and token asynchronously to avoid blocking
+      setTimeout(() => {
+        setUser(res.user)
+        setToken(res.token)
+        // Force router to update by dispatching hashchange event
+        window.location.hash = '#/tasks'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      }, 0)
+      
     } catch (err) {
       announce(passGroup, err.status >= 500 ? 'Inténtalo más tarde' : (err.message || 'Credenciales inválidas'))
     } finally { 
@@ -292,5 +301,4 @@ export default function Login() {
 
   return div
 }
-
 
