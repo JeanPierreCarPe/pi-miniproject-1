@@ -1,5 +1,6 @@
 import { passwordReset } from '../../utils/validators'
 import { verifyResetToken, resetPassword } from '../../api/auth'
+import { showToast } from '../../components/Modal'
 
 export default function ResetPassword({ params }) {
   const token = params.get('token') || ''
@@ -121,9 +122,15 @@ export default function ResetPassword({ params }) {
       <div class="card">
         <h2 style="text-align:center;margin:0 0 8px;">Restablecer contraseña</h2>
         <div id="invalidToken" style="display:none;color:#7A3E23;text-align:center;margin:12px 0;">Enlace inválido o caducado. <a href="#/forgot-password">Solicitar nuevo</a>.</div>
-            <form id="resetForm" class="form">
-              <div class="form-group" id="group-newPassword"><label for="newPassword">Nueva contraseña</label><input id="newPassword" type="password" placeholder="Mín. 8, mayúscula, minúscula, número y especial" /></div>
-          <div class="form-group" id="group-confirmNewPassword"><label for="confirmNewPassword">Confirmar</label><input id="confirmNewPassword" type="password" /></div>
+        <form id="resetForm" class="form">
+          <div class="form-group" id="group-newPassword">
+            <label for="newPassword">Nueva contraseña</label>
+            <input id="newPassword" type="password" placeholder="Mín. 8, mayúscula, minúscula, número y especial" />
+          </div>
+          <div class="form-group" id="group-confirmNewPassword">
+            <label for="confirmNewPassword">Confirmar</label>
+            <input id="confirmNewPassword" type="password" />
+          </div>
           <button id="resetBtn" class="btn" type="submit" disabled style="width:100%">Actualizar</button>
         </form>
       </div>
@@ -134,6 +141,22 @@ export default function ResetPassword({ params }) {
   const newPassword = div.querySelector('#newPassword')
   const confirmPassword = div.querySelector('#confirmNewPassword')
   const submit = div.querySelector('#resetBtn')
+  
+  // Validate that all elements exist
+  if (!form || !invalid || !newPassword || !confirmPassword || !submit) {
+    console.error('ResetPassword: Missing required DOM elements', {
+      form: !!form,
+      invalid: !!invalid,
+      newPassword: !!newPassword,
+      confirmPassword: !!confirmPassword,
+      submit: !!submit
+    })
+    return div
+  }
+  
+  // Track user interaction to show errors only after interaction
+  const userInteracted = { newPassword: false, confirmPassword: false }
+  
   const group = (id) => div.querySelector(`#group-${id}`)
   const setDisabled = (el, d) => d ? el.setAttribute('disabled','true') : el.removeAttribute('disabled')
   /**
@@ -163,22 +186,54 @@ export default function ResetPassword({ params }) {
   function validate(){ 
     let ok=true
     
-        // Nueva contraseña - ≥ 8 chars, mayúscula, minúscula, número, carácter especial
-        if(!passwordReset.test(newPassword.value)){ 
-          announce(group('newPassword'),'Contraseña ≥ 8 caracteres, con mayúscula, minúscula, número y carácter especial'); ok=false 
-        } else announce(group('newPassword'),'')
+    // Nueva contraseña - ≥ 8 chars, mayúscula, minúscula, número, carácter especial
+    if(!passwordReset.test(newPassword.value)){ 
+      if (userInteracted.newPassword) {
+        announce(group('newPassword'),'Contraseña ≥ 8 caracteres, con mayúscula, minúscula, número y carácter especial')
+      }
+      ok=false 
+    } else {
+      announce(group('newPassword'),'')
+    }
     
     // Confirmar contraseña - must match
     if(confirmPassword.value!==newPassword.value||confirmPassword.value===''){ 
-      announce(group('confirmNewPassword'),'Las contraseñas no coinciden'); ok=false 
-    } else announce(group('confirmNewPassword'),'')
+      if (userInteracted.confirmPassword) {
+        announce(group('confirmNewPassword'),'Las contraseñas no coinciden')
+      }
+      ok=false 
+    } else {
+      announce(group('confirmNewPassword'),'')
+    }
     
     setDisabled(submit,!ok)
     return ok 
   }
-  // Add event listeners only if elements exist
-  if (newPassword) newPassword.addEventListener('input',validate)
-  if (confirmPassword) confirmPassword.addEventListener('input',validate)
+  
+  // Add event listeners with defensive checks and interaction tracking
+  if (newPassword && typeof newPassword.addEventListener === 'function') {
+    newPassword.addEventListener('input', () => {
+      userInteracted.newPassword = true
+      validate()
+    })
+    
+    newPassword.addEventListener('blur', () => {
+      userInteracted.newPassword = true
+      validate()
+    })
+  }
+  
+  if (confirmPassword && typeof confirmPassword.addEventListener === 'function') {
+    confirmPassword.addEventListener('input', () => {
+      userInteracted.confirmPassword = true
+      validate()
+    })
+    
+    confirmPassword.addEventListener('blur', () => {
+      userInteracted.confirmPassword = true
+      validate()
+    })
+  }
 
   // Verify token
   (async () => {
@@ -189,11 +244,16 @@ export default function ResetPassword({ params }) {
   form.addEventListener('submit', async (e)=>{
     e.preventDefault(); if(!validate()) return
     setDisabled(submit,true)
-    try { await resetPassword({ token, newPassword: newPassword.value }); window.location.hash = '#/login' }
+    try { 
+      await resetPassword({ token, newPassword: newPassword.value })
+      showToast('Contraseña actualizada exitosamente', 'success')
+      window.location.hash = '#/login'
+    }
     catch (err) { announce(group('newPassword'), err.message || 'No se pudo actualizar') }
     finally { setDisabled(submit,false) }
   })
 
+  // Initial validation without showing errors
   validate()
   return div
 }
