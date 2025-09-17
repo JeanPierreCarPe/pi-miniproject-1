@@ -13,8 +13,7 @@ import './styles/task.css'
 function handleDirectURLs() {
   const path = window.location.pathname
   const search = window.location.search
-  const routes = ['/login', '/signup', '/tasks', '/profile']
-  // Rutas de reset password deshabilitadas para este sprint: '/reset', '/reset-password', '/forgot-password'
+  const routes = ['/login', '/signup', '/tasks', '/profile', '/reset', '/reset-password', '/forgot-password']
   
   console.log('Direct URL check - path:', path, 'search:', search)
   

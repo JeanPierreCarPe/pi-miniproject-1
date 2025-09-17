@@ -268,6 +268,9 @@ export default function ForgotPassword() {
   const successMessage = div.querySelector('#success-message')
   const tryAgainBtn = div.querySelector('#try-again-btn')
   
+  // Track user interaction to show errors only after interaction
+  const userInteracted = { email: false }
+
   const setDisabled = (el, d) => d ? el.setAttribute('disabled','true') : el.removeAttribute('disabled')
   
   /**
@@ -306,12 +309,30 @@ export default function ForgotPassword() {
    */
   function validate() {
     const ok = emailRFC5322.test(email.value)
-    announce(groupEmail, ok ? '' : 'Ingresa un correo electrónico válido')
+    
+    // Only show error if user has interacted with the field
+    if (!ok && userInteracted.email) {
+      announce(groupEmail, 'Ingresa un correo electrónico válido')
+    } else if (ok) {
+      announce(groupEmail, '')
+    }
+    
     setDisabled(submit, !ok)
     return ok
   }
   
-  email.addEventListener('input', validate)
+  // Mark user interaction and validate
+  email.addEventListener('input', () => {
+    userInteracted.email = true
+    validate()
+  })
+  
+  email.addEventListener('blur', () => {
+    userInteracted.email = true
+    validate()
+  })
+  
+  // Initial validation without showing errors
   validate()
   
   // Try again button functionality
