@@ -12,29 +12,48 @@ function parseLocation() {
 }
 
 export function startRouter(root) {
+  let currentPath = null
+  let isRendering = false
+  
   const render = () => {
+    // Prevent multiple renders at once
+    if (isRendering) return
+    
     const { path, params } = parseLocation()
     
-    // Handle root path - redirect based on auth status
-    if (path === '/') {
-      if (getToken()) {
-        window.location.hash = '#/tasks'
-      } else {
-        window.location.hash = '#/login'
+    // Skip render if path hasn't changed
+    if (currentPath === path) return
+    
+    isRendering = true
+    currentPath = path
+    
+    try {
+      // Handle root path - redirect based on auth status
+      if (path === '/') {
+        if (getToken()) {
+          window.location.hash = '#/tasks'
+        } else {
+          window.location.hash = '#/login'
+        }
+        return
       }
-      return
+      
+      const match = routes.find((r) => r.path === path) || routes.find((r) => r.path === '*')
+      
+      // Guard: require auth when route.auth === true
+      if (match?.auth && !getToken()) {
+        window.location.hash = '#/login'
+        return
+      }
+      
+      const view = match.component
+      mount(root, view({ params }))
+    } finally {
+      // Allow next render after a microtask
+      setTimeout(() => {
+        isRendering = false
+      }, 0)
     }
-    
-    const match = routes.find((r) => r.path === path) || routes.find((r) => r.path === '*')
-    
-    // Guard: require auth when route.auth === true
-    if (match?.auth && !getToken()) {
-      window.location.hash = '#/login'
-      return
-    }
-    
-    const view = match.component
-    mount(root, view({ params }))
   }
   
   window.addEventListener('hashchange', render)
