@@ -176,7 +176,9 @@ export default function ResetPassword({ params }) {
     setDisabled(submit,!ok)
     return ok 
   }
-  ;[newPassword, confirmPassword].forEach((el)=>el.addEventListener('input',validate))
+  // Add event listeners only if elements exist
+  if (newPassword) newPassword.addEventListener('input',validate)
+  if (confirmPassword) confirmPassword.addEventListener('input',validate)
 
   // Verify token
   (async () => {

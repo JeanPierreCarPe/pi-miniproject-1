@@ -319,8 +319,16 @@ export default function Signup() {
         password: password.value
       }
       const res = await signup(payload)
-      setUser(res.user); setToken(res.token)
-      window.location.hash = '#/tasks'
+      
+      // Set user and token asynchronously to avoid blocking
+      setTimeout(() => {
+        setUser(res.user)
+        setToken(res.token)
+        // Force router to update by dispatching hashchange event
+        window.location.hash = '#/tasks'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      }, 0)
+      
     } catch (err) {
       // Mostrar el mensaje devuelto por el backend si existe
       const msg = err?.data?.message || err.message || 'Error de registro'
