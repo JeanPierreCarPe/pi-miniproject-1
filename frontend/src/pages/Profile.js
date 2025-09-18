@@ -89,6 +89,13 @@ export default function Profile() {
         </div>
       </div>
 
+      <div class="profile-actions">
+        <button id="edit-profile-btn" class="btn btn-primary">
+          <i class="fas fa-edit"></i>
+          Editar Perfil
+        </button>
+      </div>
+
     </div>
 
     <style>
@@ -173,6 +180,41 @@ export default function Profile() {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 24px;
         margin-bottom: 40px;
+      }
+
+      .profile-actions {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 2px solid rgba(160, 82, 45, 0.1);
+      }
+
+      .btn {
+        background: linear-gradient(135deg, var(--cafe-principal), #8B4513);
+        color: #fff;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(160, 82, 45, 0.3);
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(160, 82, 45, 0.4);
+        background: linear-gradient(135deg, #8B4513, var(--cafe-principal));
+      }
+
+      .btn:active {
+        transform: translateY(0);
       }
 
       .detail-card {
@@ -318,6 +360,12 @@ export default function Profile() {
       }
     </style>
   `
+  
+  // Add event listener for edit button
+  const editBtn = div.querySelector('#edit-profile-btn')
+  editBtn.addEventListener('click', () => {
+    window.location.hash = '#/profile/edit'
+  })
   
   return div
 }

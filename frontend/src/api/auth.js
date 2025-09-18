@@ -18,4 +18,7 @@ export const verifyResetToken = (token) =>
 export const resetPassword = ({ token, newPassword }) =>
   http('/auth/password/reset', { method: 'POST', body: { token, newPassword } })
 
+export const updateProfile = ({ firstname, lastname, age, email }) =>
+  http('/auth/users/me', { method: 'PUT', body: { firstname, lastname, age, email }, auth: true })
+
 
