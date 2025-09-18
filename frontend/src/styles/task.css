@@ -90,6 +90,57 @@
   height: 100%;
   background: var(--cafe-principal);
 }
+
+/* Ícono de editar (lápiz) ESQUINA INFERIOR DERECHA */
+.task-card::after {
+  content: '✎';
+  position: absolute;
+  bottom: 6px;   /* 👈 más abajo */
+  right: 6px;    /* 👈 más a la esquina */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  color: var(--cafe-principal);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 3;
+}
+
+.task-card:hover::after {
+  background: var(--cafe-principal);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+}
+
+/* Responsivo para tablets */
+@media (max-width: 768px) {
+  .task-card::after {
+    bottom: 4px;  /* 👈 más ajustado aún en tablets */
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* Responsivo para móviles */
+@media (max-width: 480px) {
+  .task-card::after {
+    bottom: 4px;  /* 👈 bien pegado en móviles */
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+}
+
 .task-card:hover { 
   transform: translateY(-4px) scale(1.02); 
   box-shadow: 0 8px 24px rgba(0,0,0,.15);
@@ -432,5 +483,8 @@
 .columns::-webkit-scrollbar-thumb:hover {
   background: #8B4513;
 }
+
+
+
 
 

@@ -58,6 +58,7 @@ root.innerHTML = `
           <a href="#/tasks" id="navTasks"><i class="icon fas fa-list-check"></i><span>Mis Tareas</span></a>
           <a href="#/tasks/new" id="navNew"><i class="icon fas fa-plus-circle"></i><span>Nueva Tarea</span></a>
           <a href="#/profile" id="navProfile"><i class="icon fas fa-user"></i><span>Mi Perfil</span></a>
+          <a href="#/about" id="navAbout"><i class="icon fas fa-info-circle"></i><span>Sobre Nosotros</span></a>
         </nav>
       </div>
       <div class="footer">
@@ -104,7 +105,7 @@ document.addEventListener('keydown', (e) => {
 
 // Auto-close sidebar when navigation links are clicked on mobile
 function setupNavigationAutoClose() {
-  const navLinks = ['navTasks', 'navNew', 'navProfile']
+  const navLinks = ['navTasks', 'navNew', 'navProfile', 'navAbout']
   
   navLinks.forEach(linkId => {
     const link = document.getElementById(linkId)
@@ -165,7 +166,7 @@ function updateUserInfo() {
  */
 function syncActiveLink() {
   const path = window.location.hash.replace('#','') || '/'
-  const links = [['#/tasks','navTasks'],['#/tasks/new','navNew'],['#/profile','navProfile']]
+  const links = [['#/tasks','navTasks'],['#/tasks/new','navNew'],['#/profile','navProfile'],['#/about','navAbout']]
   links.forEach(([href,id]) => {
     const el = document.getElementById(id)
     if (!el) return
@@ -197,5 +198,60 @@ if (viewElement) {
 } else {
   console.error('View element not found')
 }
+
+// Agregar la ruta para "Sobre Nosotros" al router
+// Esto debe hacerse en el archivo router/index.js, pero como no podemos modificarlo directamente,
+// agregamos un listener para manejar la ruta about
+window.addEventListener('hashchange', function() {
+  if (window.location.hash === '#/about') {
+    const viewElement = document.getElementById('view');
+    if (viewElement) {
+      viewElement.innerHTML = `
+        <div class="container">
+          <div class="header">
+            <div class="welcome-text">
+              <h1>Sobre Nosotros</h1>
+              <p>Conoce al equipo detrás de TaskFlow</p>
+            </div>
+          </div>
+          
+          <div class="about-container">
+            <div class="about-content">
+              <p>Somos Bugbusters, un equipo de cinco desarrolladores de software apasionados por crear soluciones innovadoras y de calidad. Nuestro Product Owner, Jean Pierre Cardenas, lidera la visión del proyecto y asegura que cada entrega cumpla con los objetivos estratégicos. John Freidy Lubrido, experto en bases de datos, garantiza que la información fluya de manera segura y eficiente. Laura Valentina Arbeláez, especialista en frontend, convierte las ideas en experiencias de usuario atractivas y funcionales. Juan David Olaya, encargado de las pruebas de usabilidad, vela porque cada detalle sea intuitivo y fácil de usar. Finalmente, Cristin DanielGuaza, nuestro desarrollador backend, asegura que la lógica y el rendimiento del sistema sean impecables. Juntos combinamos creatividad, técnica y pasión para enfrentar cualquier reto, siempre con la energía de un verdadero equipo que transforma los bugs en oportunidades. 🚀✨</p>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+          .about-container {
+            background: linear-gradient(135deg, #fff 0%, #fefefe 100%);
+            border-radius: 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,.08);
+            padding: 40px;
+            border: 1px solid rgba(0,0,0,.06);
+            margin-top: 20px;
+          }
+          
+          .about-content {
+            line-height: 1.6;
+            color: #333;
+            font-size: 16px;
+          }
+          
+          .about-content p {
+            margin: 0;
+          }
+          
+          @media (max-width: 768px) {
+            .about-container {
+              padding: 24px;
+              border-radius: 20px;
+            }
+          }
+        </style>
+      `;
+    }
+  }
+});
 
 } // End of block
