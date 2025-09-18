@@ -40,4 +40,95 @@ router.post("/", auth, async (req, res) => {
     }
 });
 
+// PUT /api/tasks/:id - update existing task
+router.put("/:id", auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { Title, detail, initDate, endDate, stageName } = req.body;
+        const userId = req.userId;
+
+        // Validate required fields
+        if (!Title || !initDate || !stageName) {
+            return res.status(400).json({ message: "Title, initDate and stageName are required" });
+        }
+
+        // Validate Title length
+        if (String(Title).trim().length === 0 || String(Title).trim().length > 50) {
+            return res.status(400).json({ message: "Title must be 1-50 characters" });
+        }
+
+        // Validate detail length
+        if (detail && String(detail).trim().length > 500) {
+            return res.status(400).json({ message: "Detail must be up to 500 characters" });
+        }
+
+        // Validate stageName
+        const allowedStages = ['Por hacer', 'Haciendo', 'Hecho'];
+        if (!allowedStages.includes(stageName)) {
+            return res.status(400).json({ message: "Invalid stageName" });
+        }
+
+        // Validate that initDate is not in the past (allow today and future dates)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Start of today
+        const taskDate = new Date(initDate);
+        taskDate.setHours(0, 0, 0, 0); // Start of task date
+
+        if (taskDate < today) {
+            return res.status(400).json({ message: "La fecha debe ser futura" });
+        }
+
+        // Check if task exists and belongs to user
+        const existingTask = await TaskDAO.findOne({ _id: id, ownerId: userId, isActive: true });
+        if (!existingTask) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        // Update task
+        const updateData = {
+            Title: String(Title).trim(),
+            detail: detail ? String(detail).trim() : null,
+            initDate,
+            endDate: endDate || null,
+            stageName
+        };
+
+        const updatedTask = await TaskDAO.update(id, updateData);
+
+        // Format response with ISO-8601 updatedAt
+        const taskResponse = {
+            _id: updatedTask._id,
+            Title: updatedTask.Title,
+            detail: updatedTask.detail,
+            initDate: updatedTask.initDate,
+            endDate: updatedTask.endDate,
+            stageName: updatedTask.stageName,
+            ownerId: updatedTask.ownerId,
+            isActive: updatedTask.isActive,
+            createdAt: updatedTask.createdAt,
+            updatedAt: updatedTask.updatedAt.toISOString()
+        };
+
+        return res.status(200).json(taskResponse);
+
+    } catch (error) {
+        // Log error only in development
+        if (process.env.NODE_ENV !== "production") {
+            console.error("Task update error:", error.message);
+        }
+
+        // Handle specific MongoDB errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: "Invalid data format" });
+        }
+        
+        if (error.message.includes('Document not found')) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        // Generic 5xx error
+        return res.status(500).json({ message: "No pudimos actualizar tu tarea" });
+    }
+});
+
 module.exports = router;

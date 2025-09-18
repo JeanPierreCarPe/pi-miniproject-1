@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const UserDAO = require("../dao/UserDAO");
 const { sendPasswordResetEmail } = require("../utils/mailer");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -137,6 +138,74 @@ router.get("/password/verify", async (req, res) => {
             console.error("verify error:", error.message);
         }
         return res.status(500).json({ message: "Inténtalo de nuevo más tarde" });
+    }
+});
+
+// PUT /api/auth/users/me - Update user profile
+router.put("/users/me", authMiddleware, async (req, res) => {
+    try {
+        const { firstname, lastname, age, email } = req.body;
+        const userId = req.userId;
+
+        // Validate required fields
+        if (!firstname || !lastname || age === undefined || !email) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // Validate email format (RFC 5322)
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        // Validate age (≥13 and integer)
+        const numericAge = Number(age);
+        if (!Number.isInteger(numericAge) || numericAge < 13) {
+            return res.status(400).json({ message: "Age must be an integer and at least 13" });
+        }
+
+        // Check if email is already in use by another user
+        const existingUser = await UserDAO.findOne({ email, _id: { $ne: userId } });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email already in use" });
+        }
+
+        // Update user profile
+        const updatedUser = await UserDAO.update(userId, {
+            firstname,
+            lastname,
+            age: numericAge,
+            email
+        });
+
+        // Return updated user data (without sensitive fields)
+        const userResponse = {
+            id: updatedUser._id,
+            firstname: updatedUser.firstname,
+            lastname: updatedUser.lastname,
+            age: updatedUser.age,
+            email: updatedUser.email,
+            updatedAt: updatedUser.updatedAt.toISOString()
+        };
+
+        return res.status(200).json(userResponse);
+
+    } catch (error) {
+        // Log error only in development
+        if (process.env.NODE_ENV !== "production") {
+            console.error("Profile update error:", error.message);
+        }
+
+        // Handle specific MongoDB errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: "Invalid data format" });
+        }
+        
+        if (error.message.includes('Document not found')) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generic 5xx error
+        return res.status(500).json({ message: "Internal server error" });
     }
 });
 

@@ -278,8 +278,16 @@ export default function Login() {
     
     try {
       const res = await login({ email: email.value.trim(), password: password.value })
-      setUser(res.user); setToken(res.token)
-      window.location.hash = '#/tasks'
+      
+      // Set user and token asynchronously to avoid blocking
+      setTimeout(() => {
+        setUser(res.user)
+        setToken(res.token)
+        // Force router to update by dispatching hashchange event
+        window.location.hash = '#/tasks'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      }, 0)
+      
     } catch (err) {
       announce(passGroup, err.status >= 500 ? 'Inténtalo más tarde' : (err.message || 'Credenciales inválidas'))
     } finally { 
