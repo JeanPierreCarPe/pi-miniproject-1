@@ -61,7 +61,7 @@ export default function About() {
               <i class="fas fa-crown"></i>
             </div>
             <div class="member-info">
-              <h4>Jean Pierre Cardenas</h4>
+              <h4>Jean Cardenas</h4>
               <p class="member-role">Product Owner</p>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function About() {
               <i class="fas fa-database"></i>
             </div>
             <div class="member-info">
-              <h4>John Freidy Lubrido</h4>
+              <h4>John Lubrido</h4>
               <p class="member-role">Bases de Datos</p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function About() {
               <i class="fas fa-paint-brush"></i>
             </div>
             <div class="member-info">
-              <h4>Laura Valentina Arbeláez</h4>
+              <h4>Laura Arbeláez</h4>
               <p class="member-role">Frontend</p>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function About() {
               <i class="fas fa-user-check"></i>
             </div>
             <div class="member-info">
-              <h4>Juan David Olaya</h4>
+              <h4>Juan Olaya</h4>
               <p class="member-role">Pruebas</p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function About() {
               <i class="fas fa-server"></i>
             </div>
             <div class="member-info">
-              <h4>Cristin Daniel Guaza</h4>
+              <h4>Cristian Guaza</h4>
               <p class="member-role">Backend</p>
             </div>
           </div>
