@@ -46,7 +46,7 @@ router.post("/signup", async (req, res) => {
         userData.password = hashed;
         const user = await UserDAO.create(userData);
         const token = signToken(user._id.toString());
-        return res.status(201).json({ token, user: { id: user._id, email: user.email, firstname: user.firstname, lastname: user.lastname, age: user.age } });
+        return res.status(201).json({ token, user: { id: user._id, email: user.email, firstname: user.firstname, lastname: user.lastname, age: user.age, createdAt: user.createdAt.toISOString() } });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -67,7 +67,7 @@ router.post("/login", async (req, res) => {
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return res.status(401).json({ message: "Invalid credentials" });
         const token = signToken(user._id.toString());
-        return res.json({ token, user: { id: user._id, email: user.email, firstname: user.firstname, lastname: user.lastname, age: user.age } });
+        return res.json({ token, user: { id: user._id, email: user.email, firstname: user.firstname, lastname: user.lastname, age: user.age, createdAt: user.createdAt.toISOString() } });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -184,6 +184,7 @@ router.put("/users/me", authMiddleware, async (req, res) => {
             lastname: updatedUser.lastname,
             age: updatedUser.age,
             email: updatedUser.email,
+            createdAt: updatedUser.createdAt.toISOString(),
             updatedAt: updatedUser.updatedAt.toISOString()
         };
 
