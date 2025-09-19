@@ -2,6 +2,7 @@ import { fetchTasks } from '../../api/tasks'
 import { getToken } from '../../state/authStore'
 import { showToast } from '../../components/Modal'
 import TaskCard from '../../components/TaskCard'
+import TaskEditModal from '../../components/TaskEditModal'
 
 export default function TasksList() {
   if (!getToken()) { window.location.hash = '#/login'; return document.createElement('div') }
@@ -136,6 +137,56 @@ export default function TasksList() {
     `
   }
   
+  // Function to update specific task in DOM without reloading
+  function updateTaskInDOM(updatedTask) {
+    const existingCard = wrap.querySelector(`[data-task-id="${updatedTask._id}"]`)
+    if (!existingCard) return
+    const newCard = TaskCard(updatedTask)
+    existingCard.replaceWith(newCard)
+  }
+
+  // Move card to the correct column if stage changed and update counts
+  function moveTaskCard(updatedTask) {
+    const card = wrap.querySelector(`[data-task-id="${updatedTask._id}"]`)
+    if (!card) return
+    const currentColumn = card.closest('.column')
+    const targetStage = updatedTask.stageName
+    const targetClass = targetStage === 'Por hacer' ? 'por-hacer' : targetStage === 'Haciendo' ? 'haciendo' : 'hecho'
+    const targetColumn = wrap.querySelector(`.column.${targetClass}`)
+    if (!targetColumn) return
+    const targetList = targetColumn.querySelector('.task-list')
+    if (!targetList) return
+
+    // If the column changed, move the card
+    if (!currentColumn?.classList.contains(targetClass)) {
+      targetList.prepend(card)
+      // Update counts
+      const updateCount = (col) => {
+        const countEl = col.querySelector('.count')
+        const list = col.querySelector('.task-list')
+        if (countEl && list) countEl.textContent = String(list.children.length)
+      }
+      if (currentColumn) updateCount(currentColumn)
+      updateCount(targetColumn)
+    }
+  }
+
+  // Event listener for task edit modal
+  // Avoid duplicate handlers when navigating back to /tasks repeatedly
+  if (window.__taskEditHandler) {
+    window.removeEventListener('openTaskEditModal', window.__taskEditHandler)
+  }
+  window.__taskEditHandler = (e) => {
+    const { task } = e.detail
+    const modal = TaskEditModal(task, (updatedTask) => {
+      updateTaskInDOM(updatedTask)
+      moveTaskCard(updatedTask)
+      showToast('Tarea actualizada', 'success')
+    })
+    document.body.appendChild(modal)
+  }
+  window.addEventListener('openTaskEditModal', window.__taskEditHandler)
+
   // Load tasks immediately
   loadTasks()
 

@@ -7,6 +7,7 @@ import TasksList from '../pages/tasks/List'
 import TaskCreate from '../pages/tasks/CreateEdit'
 import Profile from '../pages/Profile'
 import ProfileEdit from '../pages/ProfileEdit'
+import About from '../pages/About'
 
 export default [
   { path: '/login', component: Login, auth: false },
@@ -18,6 +19,7 @@ export default [
   { path: '/tasks/new', component: TaskCreate, auth: true },
   { path: '/profile', component: Profile, auth: true },
   { path: '/profile/edit', component: ProfileEdit, auth: true },
+  { path: '/about', component: About, auth: true },
   { path: '*', component: NotFound, auth: false },
 ]
 

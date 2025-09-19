@@ -16,23 +16,11 @@ export default function Profile() {
     user = {}
   }
 
-  // Calculate membership duration
-  const memberSince = user.createdAt ? new Date(user.createdAt) : new Date()
-  const memberSinceFormatted = memberSince.toLocaleDateString('es-ES', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric' 
-  })
-
   div.innerHTML = `
     <div class="header">
       <div class="welcome-text">
         <h1>Mi Perfil</h1>
         <p>Información de tu cuenta y datos personales</p>
-      </div>
-      <div class="date">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Miembro desde: ${memberSinceFormatted}</span>
       </div>
     </div>
     
@@ -87,10 +75,20 @@ export default function Profile() {
             <div class="detail-value">${user.age || 'No especificado'} años</div>
           </div>
         </div>
+
+        <div class="detail-card">
+          <div class="detail-icon">
+            <i class="fas fa-calendar-plus"></i>
+          </div>
+          <div class="detail-content">
+            <label>Miembro desde</label>
+            <div class="detail-value">${formatMemberSince(user.createdAt)}</div>
+          </div>
+        </div>
       </div>
 
-      <div class="profile-actions">
-        <button id="edit-profile-btn" class="btn btn-primary">
+      <div class="profile-actions" style="display:flex;justify-content:flex-end">
+        <button id="edit-profile-btn" class="btn btn-primary" style="margin-left:auto">
           <i class="fas fa-edit"></i>
           Editar Perfil
         </button>
@@ -378,4 +376,19 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;'
   }[c]))
+}
+
+function formatMemberSince(dateString) {
+  if (!dateString) return 'Fecha no disponible'
+  
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  } catch {
+    return 'Fecha no disponible'
+  }
 }

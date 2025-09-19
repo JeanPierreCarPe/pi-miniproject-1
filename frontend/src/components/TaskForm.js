@@ -76,7 +76,9 @@ export default function TaskForm({ onSubmit }) {
         announce(group('fecha'), 'Completa este campo')
       }
       ok = false 
-    } else announce(group('fecha'), '')
+    } else {
+      announce(group('fecha'), '')
+    }
     
     // Hora - campo requerido
     if (!hora.value) { 
@@ -84,7 +86,20 @@ export default function TaskForm({ onSubmit }) {
         announce(group('hora'), 'Completa este campo')
       }
       ok = false 
-    } else announce(group('hora'), '')
+    } else {
+      announce(group('hora'), '')
+    }
+
+    // Validación de no permitir fecha/hora en el pasado (permite hoy con hora futura)
+    if (fecha.value && hora.value) {
+      const selected = new Date(`${fecha.value}T${hora.value}:00`)
+      const now = new Date()
+      if (selected < now) {
+        announce(group('fecha'), 'La fecha y hora deben ser posteriores al momento actual')
+        announce(group('hora'), '')
+        ok = false
+      }
+    }
     
     // Estado - campo requerido según modelo Task.js (stageName)
     if (!estado.value) { 
