@@ -209,21 +209,9 @@ if (viewElement) {
   console.error('View element not found')
 }
 
-// Periodic token validation - check every 5 minutes
-setInterval(async () => {
-  const { isAuthenticated } = await import('./state/authStore.js')
-  const currentHash = window.location.hash
-  
-  // Only check if we're on an authenticated route
-  if (currentHash && !['#/login', '#/signup', '#/forgot-password', '#/reset-password', '#/reset'].includes(currentHash)) {
-    if (!isAuthenticated()) {
-      console.log('Token validation failed during periodic check')
-      // Token is invalid or expired, redirect to login
-      if (!currentHash.includes('/login')) {
-        window.location.hash = '#/login'
-      }
-    }
-  }
-}, 5 * 60 * 1000) // 5 minutes
+// Start token expiration checking
+import('./state/authStore.js').then(({ startTokenExpirationCheck }) => {
+  startTokenExpirationCheck()
+})
 
 } // End of block

@@ -21,6 +21,11 @@ export function isAuthenticated() {
       return false
     }
     
+    // Check if token will expire in the next 5 minutes (optional warning)
+    if (payload.exp && payload.exp < currentTime + 300) {
+      console.log('Token will expire soon')
+    }
+    
     return true
   } catch (e) {
     // If token is malformed, clear auth data
@@ -45,6 +50,35 @@ export function logout() {
   // Redirect to login if not already there
   if (!window.location.hash.includes('/login')) {
     window.location.hash = '#/login'
+  }
+}
+
+// Check token expiration periodically (every 5 minutes)
+let tokenCheckInterval = null
+
+export function startTokenExpirationCheck() {
+  // Clear any existing interval
+  if (tokenCheckInterval) {
+    clearInterval(tokenCheckInterval)
+  }
+  
+  // Check every 5 minutes
+  tokenCheckInterval = setInterval(() => {
+    if (!isAuthenticated()) {
+      // Token is expired, clear interval and redirect
+      clearInterval(tokenCheckInterval)
+      tokenCheckInterval = null
+      if (!window.location.hash.includes('/login')) {
+        window.location.hash = '#/login'
+      }
+    }
+  }, 5 * 60 * 1000) // 5 minutes
+}
+
+export function stopTokenExpirationCheck() {
+  if (tokenCheckInterval) {
+    clearInterval(tokenCheckInterval)
+    tokenCheckInterval = null
   }
 }
 
