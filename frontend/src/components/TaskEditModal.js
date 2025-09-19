@@ -2,12 +2,6 @@ import { updateTask } from '../api/tasks'
 import { showToast } from './Modal'
 
 export default function TaskEditModal(task, onTaskUpdated) {
-  // Check if there's already a modal open
-  const existingModal = document.querySelector('.modal-overlay')
-  if (existingModal) {
-    existingModal.remove()
-  }
-  
   const modal = document.createElement('div')
   modal.className = 'modal-overlay'
   
@@ -47,7 +41,7 @@ export default function TaskEditModal(task, onTaskUpdated) {
         </div>
         
         <div class="form-group" id="group-status">
-          <label for="status">Estado *</label>
+          <label for="status">Estado</label>
           <select id="status">
             <option value="Por hacer" ${task.stageName === 'Por hacer' ? 'selected' : ''}>Por hacer</option>
             <option value="Haciendo" ${task.stageName === 'Haciendo' ? 'selected' : ''}>Haciendo</option>
@@ -301,26 +295,14 @@ export default function TaskEditModal(task, onTaskUpdated) {
       announce(group('detail'), '')
     }
 
-    // Date - required, not in the past
+    // Date - required, allow today but enforce not-in-the-past combined with time below
     if (!dateInput.value) {
       if (userInteracted.date) {
         announce(group('date'), 'Fecha es requerida')
       }
       ok = false
     } else {
-      const selectedDate = new Date(dateInput.value)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      selectedDate.setHours(0, 0, 0, 0)
-      
-      if (selectedDate < today) {
-        if (userInteracted.date) {
-          announce(group('date'), 'La fecha debe ser futura')
-        }
-        ok = false
-      } else {
-        announce(group('date'), '')
-      }
+      announce(group('date'), '')
     }
 
     // Time - required
@@ -333,8 +315,22 @@ export default function TaskEditModal(task, onTaskUpdated) {
       announce(group('time'), '')
     }
 
-    setDisabled(submitBtn, !ok)
-    return ok
+    // Combined date/time must not be in the past. Today with future time is allowed.
+    if (dateInput.value && timeInput.value) {
+      const selected = new Date(`${dateInput.value}T${timeInput.value}:00`)
+      const now = new Date()
+      if (selected < now) {
+        if (userInteracted.date || userInteracted.time) {
+          announce(group('date'), 'La fecha y hora deben ser posteriores al momento actual')
+        }
+        ok = false
+      }
+    }
+
+    // Require explicit user interaction on required fields (typed/changed)
+    const interactedAllRequired = userInteracted.title && userInteracted.date && userInteracted.time
+    setDisabled(submitBtn, !(ok && interactedAllRequired))
+    return ok && interactedAllRequired
   }
 
   // Add event listeners with interaction tracking
@@ -380,10 +376,6 @@ export default function TaskEditModal(task, onTaskUpdated) {
     // Remove event listeners immediately to prevent double-closing
     document.removeEventListener('keydown', handleEscape)
     
-    // Remove click event listeners
-    closeBtn.removeEventListener('click', closeModal)
-    modal.removeEventListener('click', modalClickHandler)
-    
     // Apply closing animation
     modal.style.animation = 'fadeOut 0.2s ease forwards'
     
@@ -395,15 +387,6 @@ export default function TaskEditModal(task, onTaskUpdated) {
     }, 200)
   }
 
-  // Modal click handler for outside clicks
-  const modalClickHandler = (e) => {
-    if (e.target === modal) {
-      e.preventDefault()
-      e.stopPropagation()
-      closeModal()
-    }
-  }
-
   // Add event listeners for closing modal
   closeBtn.addEventListener('click', (e) => {
     e.preventDefault()
@@ -411,7 +394,13 @@ export default function TaskEditModal(task, onTaskUpdated) {
     closeModal()
   })
   
-  modal.addEventListener('click', modalClickHandler)
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      e.preventDefault()
+      e.stopPropagation()
+      closeModal()
+    }
+  })
   
   // Close modal on Escape key
   const handleEscape = (e) => {
