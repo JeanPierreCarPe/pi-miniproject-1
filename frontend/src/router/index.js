@@ -1,6 +1,6 @@
 import routes from './routes'
 import { mount } from '../utils/dom'
-import { getToken } from '../state/authStore'
+import { isAuthenticated } from '../state/authStore'
 
 function parseLocation() {
   const hash = window.location.hash || '#/'
@@ -30,7 +30,7 @@ export function startRouter(root) {
     try {
       // Handle root path - redirect based on auth status
       if (path === '/') {
-        if (getToken()) {
+        if (isAuthenticated()) {
           window.location.hash = '#/tasks'
         } else {
           window.location.hash = '#/login'
@@ -41,13 +41,19 @@ export function startRouter(root) {
       const match = routes.find((r) => r.path === path) || routes.find((r) => r.path === '*')
       
       // Guard: require auth when route.auth === true
-      if (match?.auth && !getToken()) {
+      if (match?.auth && !isAuthenticated()) {
         window.location.hash = '#/login'
         return
       }
       
       const view = match.component
-      mount(root, view({ params }))
+      if (view) {
+        mount(root, view({ params }))
+      } else {
+        console.error('No component found for path:', path)
+        // Show a loading state or error
+        root.innerHTML = '<div style="padding: 20px; text-align: center;">Cargando...</div>'
+      }
     } finally {
       // Allow next render after a microtask
       setTimeout(() => {

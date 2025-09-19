@@ -30,6 +30,15 @@ function handleDirectURLs() {
     
     return false // Continue with app initialization
   }
+  
+  // If accessing root path without hash, set initial hash based on auth status
+  if (path === '/' && !window.location.hash) {
+    const hasToken = !!localStorage.getItem('auth_token')
+    const initialHash = hasToken ? '#/tasks' : '#/login'
+    console.log('Setting initial hash:', initialHash)
+    window.location.hash = initialHash
+  }
+  
   return false
 }
 
@@ -57,6 +66,7 @@ root.innerHTML = `
           <a href="#/tasks" id="navTasks"><i class="icon fas fa-list-check"></i><span>Mis Tareas</span></a>
           <a href="#/tasks/new" id="navNew"><i class="icon fas fa-plus-circle"></i><span>Nueva Tarea</span></a>
           <a href="#/profile" id="navProfile"><i class="icon fas fa-user"></i><span>Mi Perfil</span></a>
+          <a href="#/about" id="navAbout"><i class="icon fas fa-info-circle"></i><span>Sobre nosotros</span></a>
         </nav>
       </div>
       <div class="footer">
@@ -103,7 +113,7 @@ document.addEventListener('keydown', (e) => {
 
 // Auto-close sidebar when navigation links are clicked on mobile
 function setupNavigationAutoClose() {
-  const navLinks = ['navTasks', 'navNew', 'navProfile']
+  const navLinks = ['navTasks', 'navNew', 'navProfile', 'navAbout']
   
   navLinks.forEach(linkId => {
     const link = document.getElementById(linkId)
@@ -130,9 +140,9 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
   })
   
   if (confirmed) {
-    // Stateless logout: remove local token and go to login
-    try { localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user') } catch {}
-    window.location.hash = '#/login'
+    // Import logout function dynamically to avoid circular imports
+    const { logout } = await import('./state/authStore.js')
+    logout()
   }
 })
 
@@ -162,9 +172,9 @@ function updateUserInfo() {
  * Synchronizes active menu link highlighting and controls sidebar visibility
  * Hides sidebar for unauthenticated users and auth routes
  */
-function syncActiveLink() {
+async function syncActiveLink() {
   const path = window.location.hash.replace('#','') || '/'
-  const links = [['#/tasks','navTasks'],['#/tasks/new','navNew'],['#/profile','navProfile']]
+  const links = [['#/tasks','navTasks'],['#/tasks/new','navNew'],['#/profile','navProfile'],['#/about','navAbout']]
   links.forEach(([href,id]) => {
     const el = document.getElementById(id)
     if (!el) return
@@ -172,7 +182,9 @@ function syncActiveLink() {
     else el.classList.remove('active')
   })
   // Hide sidebar when not authenticated (except in auth routes)
-  const authed = !!localStorage.getItem('auth_token')
+  // Import isAuthenticated dynamically to avoid circular imports
+  const { isAuthenticated } = await import('./state/authStore.js')
+  const authed = isAuthenticated()
   const authRoute = ['#/login','#/signup'].includes(window.location.hash)
   // Reset password routes deshabilitadas: '#/forgot-password','#/reset-password','#/reset'
   document.getElementById('sidebar').style.display = authed && !authRoute ? 'flex' : 'none'
@@ -196,5 +208,22 @@ if (viewElement) {
 } else {
   console.error('View element not found')
 }
+
+// Periodic token validation - check every 5 minutes
+setInterval(async () => {
+  const { isAuthenticated } = await import('./state/authStore.js')
+  const currentHash = window.location.hash
+  
+  // Only check if we're on an authenticated route
+  if (currentHash && !['#/login', '#/signup', '#/forgot-password', '#/reset-password', '#/reset'].includes(currentHash)) {
+    if (!isAuthenticated()) {
+      console.log('Token validation failed during periodic check')
+      // Token is invalid or expired, redirect to login
+      if (!currentHash.includes('/login')) {
+        window.location.hash = '#/login'
+      }
+    }
+  }
+}, 5 * 60 * 1000) // 5 minutes
 
 } // End of block

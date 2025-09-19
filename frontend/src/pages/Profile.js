@@ -16,23 +16,11 @@ export default function Profile() {
     user = {}
   }
 
-  // Calculate membership duration
-  const memberSince = user.createdAt ? new Date(user.createdAt) : new Date()
-  const memberSinceFormatted = memberSince.toLocaleDateString('es-ES', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric' 
-  })
-
   div.innerHTML = `
     <div class="header">
       <div class="welcome-text">
         <h1>Mi Perfil</h1>
         <p>Información de tu cuenta y datos personales</p>
-      </div>
-      <div class="date">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Miembro desde: ${memberSinceFormatted}</span>
       </div>
     </div>
     
@@ -87,6 +75,23 @@ export default function Profile() {
             <div class="detail-value">${user.age || 'No especificado'} años</div>
           </div>
         </div>
+
+        <div class="detail-card">
+          <div class="detail-icon">
+            <i class="fas fa-calendar-plus"></i>
+          </div>
+          <div class="detail-content">
+            <label>Miembro desde</label>
+            <div class="detail-value">${formatMemberSince(user.createdAt)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-actions" style="display:flex;justify-content:flex-end">
+        <button id="edit-profile-btn" class="btn btn-primary" style="margin-left:auto">
+          <i class="fas fa-edit"></i>
+          Editar Perfil
+        </button>
       </div>
 
     </div>
@@ -173,6 +178,41 @@ export default function Profile() {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 24px;
         margin-bottom: 40px;
+      }
+
+      .profile-actions {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 2px solid rgba(160, 82, 45, 0.1);
+      }
+
+      .btn {
+        background: linear-gradient(135deg, var(--cafe-principal), #8B4513);
+        color: #fff;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(160, 82, 45, 0.3);
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(160, 82, 45, 0.4);
+        background: linear-gradient(135deg, #8B4513, var(--cafe-principal));
+      }
+
+      .btn:active {
+        transform: translateY(0);
       }
 
       .detail-card {
@@ -319,6 +359,12 @@ export default function Profile() {
     </style>
   `
   
+  // Add event listener for edit button
+  const editBtn = div.querySelector('#edit-profile-btn')
+  editBtn.addEventListener('click', () => {
+    window.location.hash = '#/profile/edit'
+  })
+  
   return div
 }
 
@@ -330,4 +376,19 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;'
   }[c]))
+}
+
+function formatMemberSince(dateString) {
+  if (!dateString) return 'Fecha no disponible'
+  
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  } catch {
+    return 'Fecha no disponible'
+  }
 }
