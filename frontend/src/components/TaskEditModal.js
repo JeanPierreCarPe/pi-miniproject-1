@@ -258,7 +258,7 @@ export default function TaskEditModal(task, onTaskUpdated) {
   const group = (id) => modal.querySelector(`#group-${id}`)
   
   // Track user interaction to show errors only after interaction
-  const userInteracted = { title: false, date: false, time: false }
+  const userInteracted = { title: false }
 
   const setDisabled = (el, d) => d ? el.setAttribute('disabled','true') : el.removeAttribute('disabled')
 
@@ -302,37 +302,9 @@ export default function TaskEditModal(task, onTaskUpdated) {
       announce(group('detail'), '')
     }
 
-    // Date - required, allow today but enforce not-in-the-past combined with time below
-    if (!dateInput.value) {
-      if (userInteracted.date) {
-        announce(group('date'), 'Fecha es requerida')
-      }
-      ok = false
-    } else {
-      announce(group('date'), '')
-    }
-
-    // Time - required
-    if (!timeInput.value) {
-      if (userInteracted.time) {
-        announce(group('time'), 'Hora es requerida')
-      }
-      ok = false
-    } else {
-      announce(group('time'), '')
-    }
-
-    // Combined date/time must not be in the past. Today with future time is allowed.
-    if (dateInput.value && timeInput.value) {
-      const selected = new Date(`${dateInput.value}T${timeInput.value}:00`)
-      const now = new Date()
-      if (selected < now) {
-        if (userInteracted.date || userInteracted.time) {
-          announce(group('date'), 'La fecha y hora deben ser posteriores al momento actual')
-        }
-        ok = false
-      }
-    }
+    // Date and time are now optional - no validation required
+    announce(group('date'), '')
+    announce(group('time'), '')
 
     // Check if any field has changed from original
     const hasChanged = titleInput.value.trim() !== originalTitle ||
@@ -358,23 +330,6 @@ export default function TaskEditModal(task, onTaskUpdated) {
 
   detailInput.addEventListener('input', validate)
 
-  dateInput.addEventListener('change', () => {
-    userInteracted.date = true
-    validate()
-  })
-  dateInput.addEventListener('blur', () => {
-    userInteracted.date = true
-    validate()
-  })
-
-  timeInput.addEventListener('change', () => {
-    userInteracted.time = true
-    validate()
-  })
-  timeInput.addEventListener('blur', () => {
-    userInteracted.time = true
-    validate()
-  })
 
   statusSelect.addEventListener('change', validate)
 
@@ -434,8 +389,10 @@ export default function TaskEditModal(task, onTaskUpdated) {
     spinner.style.display = 'block'
 
     try {
-      // Combine date and time
-      const initDateTime = new Date(`${dateInput.value}T${timeInput.value}:00`)
+      // Combine date and time, using original if empty
+      const finalDate = dateInput.value || originalDate
+      const finalTime = timeInput.value || originalTime
+      const initDateTime = new Date(`${finalDate}T${finalTime}:00`)
 
       const updatedTask = await updateTask(task._id, {
         Title: titleInput.value.trim(),

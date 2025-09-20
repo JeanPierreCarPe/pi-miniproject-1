@@ -75,17 +75,8 @@ router.put("/:id", auth, async (req, res) => {
             updateData.stageName = stageName;
         }
 
-        // Validate and set initDate if provided
+        // Set initDate if provided
         if (initDate !== undefined) {
-            // Validate that initDate is not in the past (allow today and future dates)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Start of today
-            const taskDate = new Date(initDate);
-            taskDate.setHours(0, 0, 0, 0); // Start of task date
-
-            if (taskDate < today) {
-                return res.status(400).json({ message: "La fecha debe ser futura" });
-            }
             updateData.initDate = initDate;
         }
 
