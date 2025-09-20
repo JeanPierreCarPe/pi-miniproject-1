@@ -47,35 +47,56 @@ router.put("/:id", auth, async (req, res) => {
         const { Title, detail, initDate, endDate, stageName } = req.body;
         const userId = req.userId;
 
-        // Validate required fields
-        if (!Title || !initDate || !stageName) {
-            return res.status(400).json({ message: "Title, initDate and stageName are required" });
+        // Build update data conditionally
+        const updateData = {};
+
+        // Validate and set Title if provided
+        if (Title !== undefined) {
+            if (String(Title).trim().length === 0 || String(Title).trim().length > 50) {
+                return res.status(400).json({ message: "Title must be 1-50 characters" });
+            }
+            updateData.Title = String(Title).trim();
         }
 
-        // Validate Title length
-        if (String(Title).trim().length === 0 || String(Title).trim().length > 50) {
-            return res.status(400).json({ message: "Title must be 1-50 characters" });
+        // Validate and set detail if provided
+        if (detail !== undefined) {
+            if (String(detail).trim().length > 500) {
+                return res.status(400).json({ message: "Detail must be up to 500 characters" });
+            }
+            updateData.detail = String(detail).trim() || null;
         }
 
-        // Validate detail length
-        if (detail && String(detail).trim().length > 500) {
-            return res.status(400).json({ message: "Detail must be up to 500 characters" });
+        // Validate and set stageName if provided
+        if (stageName !== undefined) {
+            const allowedStages = ['Por hacer', 'Haciendo', 'Hecho'];
+            if (!allowedStages.includes(stageName)) {
+                return res.status(400).json({ message: "Invalid stageName" });
+            }
+            updateData.stageName = stageName;
         }
 
-        // Validate stageName
-        const allowedStages = ['Por hacer', 'Haciendo', 'Hecho'];
-        if (!allowedStages.includes(stageName)) {
-            return res.status(400).json({ message: "Invalid stageName" });
+        // Validate and set initDate if provided
+        if (initDate !== undefined) {
+            // Validate that initDate is not in the past (allow today and future dates)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Start of today
+            const taskDate = new Date(initDate);
+            taskDate.setHours(0, 0, 0, 0); // Start of task date
+
+            if (taskDate < today) {
+                return res.status(400).json({ message: "La fecha debe ser futura" });
+            }
+            updateData.initDate = initDate;
         }
 
-        // Validate that initDate is not in the past (allow today and future dates)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Start of today
-        const taskDate = new Date(initDate);
-        taskDate.setHours(0, 0, 0, 0); // Start of task date
+        // Set endDate if provided
+        if (endDate !== undefined) {
+            updateData.endDate = endDate || null;
+        }
 
-        if (taskDate < today) {
-            return res.status(400).json({ message: "La fecha debe ser futura" });
+        // Check if at least one field is being updated
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ message: "At least one field must be provided for update" });
         }
 
         // Check if task exists and belongs to user
@@ -83,15 +104,6 @@ router.put("/:id", auth, async (req, res) => {
         if (!existingTask) {
             return res.status(404).json({ message: "Task not found" });
         }
-
-        // Update task
-        const updateData = {
-            Title: String(Title).trim(),
-            detail: detail ? String(detail).trim() : null,
-            initDate,
-            endDate: endDate || null,
-            stageName
-        };
 
         const updatedTask = await TaskDAO.update(id, updateData);
 
