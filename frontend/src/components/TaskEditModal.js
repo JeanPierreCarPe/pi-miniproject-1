@@ -9,6 +9,13 @@ export default function TaskEditModal(task, onTaskUpdated) {
   const initDate = new Date(task.initDate)
   const dateValue = initDate.toISOString().split('T')[0]
   const timeValue = initDate.toTimeString().slice(0, 5)
+
+  // Store original values to detect changes
+  const originalTitle = task.Title
+  const originalDetail = task.detail || ''
+  const originalDate = dateValue
+  const originalTime = timeValue
+  const originalStatus = task.stageName
   
   modal.innerHTML = `
     <div class="modal-content">
@@ -19,7 +26,7 @@ export default function TaskEditModal(task, onTaskUpdated) {
       
       <form id="taskEditForm" class="form">
         <div class="form-group" id="group-title">
-          <label for="title">Título *</label>
+          <label for="title">Título</label>
           <input id="title" type="text" value="${escapeHtml(task.Title)}" maxlength="50" />
         </div>
         
@@ -30,12 +37,12 @@ export default function TaskEditModal(task, onTaskUpdated) {
         
         <div class="form-grid">
           <div class="form-group" id="group-date">
-            <label for="date">Fecha *</label>
+            <label for="date">Fecha</label>
             <input id="date" type="date" value="${dateValue}" />
           </div>
           
           <div class="form-group" id="group-time">
-            <label for="time">Hora *</label>
+            <label for="time">Hora</label>
             <input id="time" type="time" value="${timeValue}" />
           </div>
         </div>
@@ -327,10 +334,16 @@ export default function TaskEditModal(task, onTaskUpdated) {
       }
     }
 
-    // Require explicit user interaction on required fields (typed/changed)
-    const interactedAllRequired = userInteracted.title && userInteracted.date && userInteracted.time
-    setDisabled(submitBtn, !(ok && interactedAllRequired))
-    return ok && interactedAllRequired
+    // Check if any field has changed from original
+    const hasChanged = titleInput.value.trim() !== originalTitle ||
+      detailInput.value.trim() !== originalDetail ||
+      dateInput.value !== originalDate ||
+      timeInput.value !== originalTime ||
+      statusSelect.value !== originalStatus
+
+    // Enable button if any change has been made
+    setDisabled(submitBtn, !hasChanged)
+    return ok
   }
 
   // Add event listeners with interaction tracking
