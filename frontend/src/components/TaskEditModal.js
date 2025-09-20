@@ -343,7 +343,7 @@ export default function TaskEditModal(task, onTaskUpdated) {
 
     // Enable button if any change has been made
     setDisabled(submitBtn, !hasChanged)
-    return ok
+    return ok && hasChanged
   }
 
   // Add event listeners with interaction tracking
