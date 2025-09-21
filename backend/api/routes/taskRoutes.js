@@ -77,12 +77,26 @@ router.put("/:id", auth, async (req, res) => {
 
         // Set initDate if provided
         if (initDate !== undefined) {
-            updateData.initDate = initDate;
+            // Validate that initDate is a valid date
+            const dateObj = new Date(initDate);
+            if (isNaN(dateObj.getTime())) {
+                return res.status(400).json({ message: "Invalid initDate format" });
+            }
+            updateData.initDate = dateObj;
         }
 
         // Set endDate if provided
         if (endDate !== undefined) {
-            updateData.endDate = endDate || null;
+            if (endDate === null || endDate === '') {
+                updateData.endDate = null;
+            } else {
+                // Validate that endDate is a valid date
+                const dateObj = new Date(endDate);
+                if (isNaN(dateObj.getTime())) {
+                    return res.status(400).json({ message: "Invalid endDate format" });
+                }
+                updateData.endDate = dateObj;
+            }
         }
 
         // Check if at least one field is being updated
@@ -115,10 +129,11 @@ router.put("/:id", auth, async (req, res) => {
         return res.status(200).json(taskResponse);
 
     } catch (error) {
-        // Log error only in development
-        if (process.env.NODE_ENV !== "production") {
-            console.error("Task update error:", error.message);
-        }
+        // Log error for debugging in both environments
+        console.error("Task update error:", error.message);
+        console.error("Error stack:", error.stack);
+        console.error("Request body:", req.body);
+        console.error("Request params:", req.params);
 
         // Handle specific MongoDB errors
         if (error.name === 'ValidationError') {

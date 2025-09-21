@@ -413,19 +413,32 @@ export default function TaskEditModal(task, onTaskUpdated) {
       closeModal()
 
     } catch (err) {
+      // Log error for debugging in both environments
+      console.error('Task update error:', err)
+      console.error('Error details:', {
+        message: err.message,
+        status: err.status,
+        data: err.data
+      })
+      
       // Handle specific errors
       if (err.message.includes('La fecha debe ser futura')) {
         announce(group('date'), 'La fecha debe ser futura')
-      } else if (err.message.includes('401') || err.message.includes('token')) {
+      } else if (err.message.includes('401') || err.message.includes('token') || err.status === 401) {
         showToast('Tu sesión ha expirado', 'error')
         setTimeout(() => {
           window.location.hash = '#/login'
         }, 2000)
+      } else if (err.status === 404) {
+        showToast('La tarea no fue encontrada', 'error')
+      } else if (err.status === 400) {
+        showToast(err.message || 'Datos inválidos', 'error')
+      } else if (err.status === 500) {
+        showToast('Error del servidor. Intenta nuevamente', 'error')
+      } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        showToast('Error de conexión. Verifica tu internet', 'error')
       } else {
         showToast('No pudimos actualizar tu tarea', 'error')
-        if (process.env.NODE_ENV !== 'production') {
-          console.error('Task update error:', err)
-        }
       }
     } finally {
       // Hide spinner and restore button
