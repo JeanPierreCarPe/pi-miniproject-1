@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const UserDAO = require("../dao/UserDAO");
+const Task = require("../models/Task");
 const { sendPasswordResetEmail } = require("../utils/mailer");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -203,6 +204,53 @@ router.put("/users/me", authMiddleware, async (req, res) => {
         
         if (error.message.includes('Document not found')) {
             return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generic 5xx error
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// DELETE /api/auth/users/me - Delete user account
+router.delete("/users/me", authMiddleware, async (req, res) => {
+    try {
+        const { password, confirmation } = req.body;
+        const userId = req.userId;
+
+        // Validate required fields
+        if (!password || !confirmation) {
+            return res.status(400).json({ message: "Password and confirmation are required" });
+        }
+
+        // Check confirmation text
+        if (confirmation !== "ELIMINAR") {
+            return res.status(400).json({ message: "Invalid confirmation text" });
+        }
+
+        // Find user
+        const user = await UserDAO.findOne({ _id: userId });
+        if (!user) {
+            return res.status(404).json({ message: "Account not found" });
+        }
+
+        // Verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Incorrect password" });
+        }
+
+        // Delete associated tasks
+        await Task.deleteMany({ ownerId: userId });
+
+        // Delete user
+        await UserDAO.delete(userId);
+
+        return res.status(204).send();
+
+    } catch (error) {
+        // Log error only in development
+        if (process.env.NODE_ENV !== "production") {
+            console.error("Account delete error:", error.message);
         }
 
         // Generic 5xx error

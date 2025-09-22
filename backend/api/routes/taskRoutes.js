@@ -75,17 +75,8 @@ router.put("/:id", auth, async (req, res) => {
             updateData.stageName = stageName;
         }
 
-        // Validate and set initDate if provided
+        // Set initDate if provided
         if (initDate !== undefined) {
-            // Validate that initDate is not in the past (allow today and future dates)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Start of today
-            const taskDate = new Date(initDate);
-            taskDate.setHours(0, 0, 0, 0); // Start of task date
-
-            if (taskDate < today) {
-                return res.status(400).json({ message: "La fecha debe ser futura" });
-            }
             updateData.initDate = initDate;
         }
 
@@ -140,6 +131,34 @@ router.put("/:id", auth, async (req, res) => {
 
         // Generic 5xx error
         return res.status(500).json({ message: "No pudimos actualizar tu tarea" });
+    }
+});
+
+// DELETE /api/tasks/:id - delete task for logged user
+router.delete("/:id", auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        // Check if task exists and belongs to user
+        const existingTask = await TaskDAO.findOne({ _id: id, ownerId: userId, isActive: true });
+        if (!existingTask) {
+            return res.status(404).json({ message: "La tarea ya no está disponible" });
+        }
+
+        // Delete the task
+        await TaskDAO.delete(id);
+
+        return res.status(204).send();
+
+    } catch (error) {
+        // Log error only in development
+        if (process.env.NODE_ENV !== "production") {
+            console.error("Task delete error:", error.message);
+        }
+
+        // Generic 5xx error
+        return res.status(500).json({ message: "No pudimos eliminar la tarea, inténtalo más tarde" });
     }
 });
 
