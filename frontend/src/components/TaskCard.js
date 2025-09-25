@@ -18,10 +18,16 @@ export default function TaskCard(task) {
       <div class="task-title">${escapeHtml(task.Title)}</div>
       <div class="task-right" style="display:flex;align-items:center;gap:8px">
         <span class="pill ${pillClass}">${escapeHtml(task.stageName)}</span>
-        <button type="button" class="action-btn" title="Editar tarea" aria-label="Editar tarea" 
-          style="background:transparent;border:0;padding:4px;border-radius:8px;color:var(--cafe-principal);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-          <i class="fas fa-edit" style="font-size:16px"></i>
-        </button>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <button type="button" class="action-btn edit-btn" title="Editar tarea" aria-label="Editar tarea" 
+            style="background:transparent;border:0;padding:4px;border-radius:8px;color:var(--cafe-principal);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-edit" style="font-size:16px"></i>
+          </button>
+          <button type="button" class="action-btn delete-btn" title="Eliminar tarea" aria-label="Eliminar tarea" 
+            style="background:transparent;border:0;padding:4px;border-radius:8px;color:var(--cafe-principal);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-trash" style="font-size:16px"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div class="task-detail">${escapeHtml(task.detail||'')}</div>
@@ -32,7 +38,7 @@ export default function TaskCard(task) {
   `
 
   // Open edit modal when clicking the edit icon
-  const editBtn = card.querySelector('.action-btn')
+  const editBtn = card.querySelector('.edit-btn')
   if (editBtn) {
     editBtn.addEventListener('click', (e) => {
       e.preventDefault()
@@ -41,9 +47,19 @@ export default function TaskCard(task) {
       } catch {}
     })
   }
+
+// Delete task when clicking the trash icon
+const deleteBtn = card.querySelector('.delete-btn')
+if (deleteBtn) {
+  deleteBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    try {
+      window.dispatchEvent(new CustomEvent('openTaskDeleteModal', { detail: { task } }))
+    } catch {}
+  })
+}
+
   return card
 }
 
 function escapeHtml(str) { return String(str||'').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
-
-

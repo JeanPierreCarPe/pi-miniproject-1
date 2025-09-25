@@ -3,7 +3,7 @@
  * Initializes the SPA router, sets up layout, and handles global UI elements like sidebar and logout
  */
 import { startRouter } from './router/index'
-import { showModal } from './components/Modal'
+import { showModal, showToast } from './components/Modal.js'
 import './styles/base.css'
 import './styles/layout.css'
 import './styles/form.css'
@@ -212,6 +212,28 @@ if (viewElement) {
 // Start token expiration checking
 import('./state/authStore.js').then(({ startTokenExpirationCheck }) => {
   startTokenExpirationCheck()
+})
+
+// Event listener for task deletion modal
+window.addEventListener('openTaskDeleteModal', async (e) => {
+  const task = e.detail.task
+  
+  // Mostrar el modal de confirmación
+  const confirmed = await showModal({
+    title: 'Eliminar tarea',
+    message: `¿Seguro que deseas eliminar la tarea <strong>${task.Title}</strong>?`,
+    confirmText: 'Sí, eliminar',
+    cancelText: 'Cancelar',
+    type: 'error'
+  })
+
+  if (confirmed) {
+    // Lanza el evento real de eliminación
+    window.dispatchEvent(new CustomEvent('deleteTask', { detail: { task } }))
+    
+    // Muestra notificación de éxito
+    showToast('Tarea eliminada con éxito', 'success')
+  }
 })
 
 } // End of block
