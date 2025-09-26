@@ -9,10 +9,12 @@ import Profile from '../pages/Profile'
 import ProfileEdit from '../pages/ProfileEdit'
 import About from '../pages/About'
 import Welcome from '../pages/Welcome'  
+import Sitemap from '../pages/Sitemap'
 
 export default [
   { path: '/', component: Welcome, auth: false },
   { path: '/inicio', component: Welcome, auth: false },
+  { path: '/sitemap', component: Sitemap, auth: false },
   { path: '/login', component: Login, auth: false },
   { path: '/signup', component: Signup, auth: false },
   { path: '/forgot-password', component: ForgotPassword, auth: false },

@@ -19,11 +19,12 @@ export default function Welcome() {
       .auth-screen{
         min-height:100vh;
         background: var(--background-gradient);
-        display:grid;
-        grid-template-columns:1fr 1fr;
+        display:flex;
+        flex-direction: column;
         position: relative;
         overflow: hidden;
         padding: 40px;
+        padding-bottom: 0;
         box-sizing: border-box;
       }
       .auth-container {
@@ -35,7 +36,8 @@ export default function Welcome() {
         background: #fff;
         max-width: 1200px;
         margin: auto;
-        min-height: calc(100vh - 80px);
+        flex: 1;
+        min-height: 0;
       }
       .auth-screen::before {
         content: '';
@@ -186,9 +188,57 @@ export default function Welcome() {
         opacity: 1;
       }
       
+      /* Footer Styles */
+      .welcome-page-footer {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        border-top: 1px solid rgba(160, 82, 45, 0.1);
+        margin-top: 2rem;
+        width: 100%;
+      }
+      
+      .footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .footer-nav {
+        display: flex;
+        align-items: center;
+      }
+      
+      .footer-link {
+        color: var(--text-gray);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        opacity: 0.8;
+      }
+      
+      .footer-link:hover {
+        color: var(--primary-color);
+        background: rgba(160, 82, 45, 0.1);
+        opacity: 1;
+        transform: translateY(-1px);
+      }
+      
       @media(min-width:768px){ 
         .auth-screen{
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
         }
@@ -360,7 +410,22 @@ export default function Welcome() {
           </div>
         </div>
       </section>
-    </div>`
+    </div>
+    
+    <!-- Footer -->
+    <footer class="welcome-page-footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-tasks" style="font-size: 1.5rem; color: var(--primary-color); margin-right: 0.5rem;"></i>
+          <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-dark);">TaskFlow</div>
+        </div>
+        <nav class="footer-nav">
+          <a href="#/sitemap" class="footer-link" id="sitemapLink">
+            <span>Mapa del Sitio</span>
+          </a>
+        </nav>
+      </div>
+    </footer>`
 
   // Prefetch de recursos para mejor performance
   const prefetchLinks = ['/login-bg.jpeg', '#/login', '#/signup']
@@ -374,6 +439,7 @@ export default function Welcome() {
   // Mejorar interactividad de botones
   const loginBtn = div.querySelector('#loginBtn')
   const signupBtn = div.querySelector('#signupBtn')
+  const sitemapLink = div.querySelector('#sitemapLink')
 
   // If already authenticated, replace buttons with "Ir al Panel"
   try {
@@ -401,6 +467,12 @@ export default function Welcome() {
   signupBtn.addEventListener('click', (e) => {
     e.preventDefault()
     window.location.hash = '#/signup'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+  })
+
+  sitemapLink.addEventListener('click', (e) => {
+    e.preventDefault()
+    window.location.hash = '#/sitemap'
     window.dispatchEvent(new HashChangeEvent('hashchange'))
   })
 
