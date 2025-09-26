@@ -1,4 +1,6 @@
-import { getUser } from '../state/authStore'
+import { getUser, clearAuth } from '../state/authStore'
+import { deleteAccount } from '../api/auth'
+import { showToast } from '../components/Modal'
 
 /**
  * Profile page component showing user registration data
@@ -255,6 +257,34 @@ export default function Profile() {
       .btn:disabled:hover {
         transform: none;
         box-shadow: none;
+      }
+
+      .btn-loading {
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      .btn-loading::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      .btn-loading span {
+        opacity: 0;
+      }
+
+      @keyframes spin { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
       }
 
       /* Estilos del Modal */
@@ -597,24 +627,56 @@ export default function Profile() {
     modal.style.display = 'none'
   })
 
-  confirmBtn.addEventListener('click', () => {
+  confirmBtn.addEventListener('click', async () => {
     // Validar una última vez antes de proceder
     validateDeleteConfirmation()
     
     if (confirmBtn.disabled) {
-      alert('Por favor completa todos los campos correctamente')
+      showToast('Por favor completa todos los campos correctamente', 'error')
       return
     }
 
-    // Aquí iría la lógica para eliminar la cuenta
-    console.log('Eliminando cuenta...')
-    // Ejemplo:
-    // localStorage.removeItem('auth_user')
-    // window.location.hash = '#/login'
-    
-    // Por ahora solo cerramos el modal
-    modal.style.display = 'none'
-    alert('Cuenta eliminada exitosamente (esto es una simulación)')
+    try {
+      // Show loading state
+      confirmBtn.classList.add('btn-loading')
+      confirmBtn.disabled = true
+      cancelBtn.disabled = true
+
+      const password = passwordInput.value.trim()
+      const confirmation = confirmTextInput.value.trim()
+
+      // Call delete account API
+      await deleteAccount({ password, confirmation })
+
+      // Clear auth data
+      clearAuth()
+
+      // Show success toast
+      showToast('Cuenta eliminada', 'success')
+
+      // Redirect to welcome page
+      setTimeout(() => {
+        window.location.hash = '#/inicio'
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      }, 1000)
+
+    } catch (error) {
+      // Remove loading state
+      confirmBtn.classList.remove('btn-loading')
+      confirmBtn.disabled = false
+      cancelBtn.disabled = false
+
+      // Handle specific errors
+      if (error.status === 401) {
+        showToast('Contraseña incorrecta', 'error')
+      } else if (error.status === 404) {
+        showToast('Cuenta no encontrada', 'error')
+      } else if (error.status >= 500) {
+        showToast('Error interno del servidor', 'error')
+      } else {
+        showToast('Error al eliminar la cuenta', 'error')
+      }
+    }
   })
 
   // Cerrar modal al hacer clic fuera del contenido
