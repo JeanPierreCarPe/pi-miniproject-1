@@ -330,6 +330,8 @@ export default function TaskEditModal(task, onTaskUpdated) {
 
   detailInput.addEventListener('input', validate)
 
+  dateInput.addEventListener('change', validate)
+  timeInput.addEventListener('change', validate)
 
   statusSelect.addEventListener('change', validate)
 
