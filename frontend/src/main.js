@@ -185,13 +185,15 @@ async function syncActiveLink() {
   // Import isAuthenticated dynamically to avoid circular imports
   const { isAuthenticated } = await import('./state/authStore.js')
   const authed = isAuthenticated()
-  const authRoute = ['#/login','#/signup'].includes(window.location.hash)
-  // Reset password routes deshabilitadas: '#/forgot-password','#/reset-password','#/reset'
-  document.getElementById('sidebar').style.display = authed && !authRoute ? 'flex' : 'none'
-  document.getElementById('menuToggle').style.display = authed && !authRoute ? 'block' : 'none'
+  // Rutas públicas donde la sidebar NO debe mostrarse
+  const publicRoutes = ['#/','#/inicio','#/login','#/signup','#/forgot-password','#/reset-password','#/reset']
+  const currentHash = window.location.hash || '#/'
+  const isPublicRoute = publicRoutes.includes(currentHash)
+  document.getElementById('sidebar').style.display = authed && !isPublicRoute ? 'flex' : 'none'
+  document.getElementById('menuToggle').style.display = authed && !isPublicRoute ? 'block' : 'none'
   
   // Update user info when authenticated
-  if (authed && !authRoute) {
+  if (authed && !isPublicRoute) {
     updateUserInfo()
   }
 }

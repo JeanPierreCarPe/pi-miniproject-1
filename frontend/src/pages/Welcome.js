@@ -375,6 +375,23 @@ export default function Welcome() {
   const loginBtn = div.querySelector('#loginBtn')
   const signupBtn = div.querySelector('#signupBtn')
 
+  // If already authenticated, replace buttons with "Ir al Panel"
+  try {
+    const hasToken = !!localStorage.getItem('auth_token')
+    if (hasToken) {
+      const buttonsWrap = div.querySelector('.welcome-buttons')
+      if (buttonsWrap) {
+        buttonsWrap.innerHTML = `<a href="#/tasks" class="btn-primary" id="dashboardBtn"><span>Ir al Panel</span></a>`
+        const dashboardBtn = div.querySelector('#dashboardBtn')
+        dashboardBtn?.addEventListener('click', (e) => {
+          e.preventDefault()
+          window.location.hash = '#/tasks'
+          window.dispatchEvent(new HashChangeEvent('hashchange'))
+        })
+      }
+    }
+  } catch {}
+
   loginBtn.addEventListener('click', (e) => {
     e.preventDefault()
     window.location.hash = '#/login'
