@@ -94,6 +94,37 @@ export default function Welcome() {
       .welcome-subtitle:hover {
         transform: translateY(-2px);
       }
+      .features-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 24px 0;
+        padding: 20px;
+        background: rgba(160, 82, 45, 0.05);
+        border-radius: 16px;
+        border: 1px solid rgba(160, 82, 45, 0.1);
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        color: var(--text-gray);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .feature-item i {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 16px;
+      }
+
       .welcome-buttons {
         display: flex;
         flex-direction: column;
@@ -130,10 +161,6 @@ export default function Welcome() {
       .btn-primary:active {
         transform: translateY(0);
       }
-      .btn-primary::after {
-        content: '✓';
-        font-weight: bold;
-      }
       .btn-secondary {
         background: transparent;
         color: var(--primary-color);
@@ -149,40 +176,6 @@ export default function Welcome() {
       .btn-secondary:active {
         transform: translateY(0);
       }
-      .btn-secondary::after {
-        content: '+';
-        font-weight: bold;
-        font-size: 1.2em;
-      }
-      .btn-loading {
-        pointer-events: none;
-        opacity: 0.8;
-      }
-      .btn-loading::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 20px;
-        height: 20px;
-        margin: -10px 0 0 -10px;
-        border: 2px solid transparent;
-        border-top: 2px solid currentColor;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-      }
-      .btn-loading span {
-        opacity: 0;
-      }
-      .brand-logo {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        font-weight: 700;
-        color: var(--primary-color);
-        font-size: 1.2rem;
-        z-index: 10;
-      }
       .welcome-footer {
         color: var(--text-gray);
         font-size: 0.9rem;
@@ -192,6 +185,7 @@ export default function Welcome() {
       .welcome-footer:hover {
         opacity: 1;
       }
+      
       @media(min-width:768px){ 
         .auth-screen{
           display: flex;
@@ -224,6 +218,23 @@ export default function Welcome() {
         .auth-card .card{
           padding: 0;
         }
+        .features-preview {
+          flex-direction: row;
+          justify-content: space-around;
+          gap: 16px;
+        }
+
+        .feature-item {
+          flex-direction: column;
+          text-align: center;
+          gap: 8px;
+          font-size: 12px;
+        }
+
+        .feature-item i {
+          font-size: 18px;
+        }
+
         .welcome-buttons {
           flex-direction: row;
           justify-content: center;
@@ -296,11 +307,6 @@ export default function Welcome() {
         .welcome-title {
           font-size: 1.75rem;
         }
-        .brand-logo {
-          top: 15px;
-          left: 15px;
-          font-size: 1.1rem;
-        }
       }
       @keyframes slideInFromRight {
         from { opacity: 0; transform: translateX(30px); }
@@ -312,7 +318,6 @@ export default function Welcome() {
       }
     </style>
     
-    <div class="brand-logo">Touchflow</div>
     
     <div class="auth-container">
       <section class="auth-img">
@@ -321,12 +326,26 @@ export default function Welcome() {
       <section class="auth-card">
         <div class="card">
           <div class="welcome-content">
-            <h1 class="welcome-title">Bienvenido a Touchflow</h1>
+            <h1 class="welcome-title">Bienvenido a TaskFlow</h1>
             <p class="welcome-subtitle">
-              Organiza tus tareas con estilo y gestiona tu día de forma sencilla y productiva. 
-              Esta aplicación está pensada para ayudarte a completar tus pendientes, mejorar 
-              tu productividad y llevar un control claro de tu vida diaria.
+              La herramienta perfecta para organizar tu vida y maximizar tu productividad. 
+              Gestiona tus tareas de manera inteligente, mantén el control de tus proyectos 
+              y alcanza tus objetivos con facilidad.
             </p>
+            <div class="features-preview">
+              <div class="feature-item">
+                <i class="fas fa-columns"></i>
+                <span>Organización Visual</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Planificación Inteligente</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-mobile-alt"></i>
+                <span>Acceso Multiplataforma</span>
+              </div>
+            </div>
             <div class="welcome-buttons">
               <a href="#/login" class="btn-primary" id="loginBtn">
                 <span>Iniciar Sesión</span>
@@ -336,7 +355,7 @@ export default function Welcome() {
               </a>
             </div>
             <p class="welcome-footer">
-              "El comienxo a una vida mas organizada"
+              "El comienzo de una vida más organizada"
             </p>
           </div>
         </div>
@@ -356,22 +375,17 @@ export default function Welcome() {
   const loginBtn = div.querySelector('#loginBtn')
   const signupBtn = div.querySelector('#signupBtn')
 
-  const handleButtonClick = (e, button, href) => {
+  loginBtn.addEventListener('click', (e) => {
     e.preventDefault()
-    
-    // Añadir efecto de loading
-    button.classList.add('btn-loading')
-    
-    // Simular carga mínima para mejor UX
-    setTimeout(() => {
-      window.location.hash = href
-      window.dispatchEvent(new HashChangeEvent('hashchange'))
-      button.classList.remove('btn-loading')
-    }, 300)
-  }
-
-  loginBtn.addEventListener('click', (e) => handleButtonClick(e, loginBtn, '#/login'))
-  signupBtn.addEventListener('click', (e) => handleButtonClick(e, signupBtn, '#/signup'))
+    window.location.hash = '#/login'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+  })
+  
+  signupBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    window.location.hash = '#/signup'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+  })
 
   // Mejorar accesibilidad
   div.querySelectorAll('a').forEach(link => {

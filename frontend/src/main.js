@@ -34,7 +34,7 @@ function handleDirectURLs() {
   // If accessing root path without hash, set initial hash based on auth status
   if (path === '/' && !window.location.hash) {
     const hasToken = !!localStorage.getItem('auth_token')
-    const initialHash = hasToken ? '#/tasks' : '#/login'
+    const initialHash = hasToken ? '#/tasks' : '#/inicio'
     console.log('Setting initial hash:', initialHash)
     window.location.hash = initialHash
   }
