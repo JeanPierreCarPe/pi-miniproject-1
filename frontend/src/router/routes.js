@@ -8,13 +8,16 @@ import TaskCreate from '../pages/tasks/CreateEdit'
 import Profile from '../pages/Profile'
 import ProfileEdit from '../pages/ProfileEdit'
 import About from '../pages/About'
+import Welcome from '../pages/Welcome'  
 
 export default [
+  { path: '/', component: Welcome, auth: false },
+  { path: '/inicio', component: Welcome, auth: false },
   { path: '/login', component: Login, auth: false },
   { path: '/signup', component: Signup, auth: false },
   { path: '/forgot-password', component: ForgotPassword, auth: false },
   { path: '/reset-password', component: ResetPassword, auth: false },
-  { path: "/reset", component: ResetPassword, auth: false }, // Alias para compatibilidad
+  { path: '/reset', component: ResetPassword, auth: false },
   { path: '/tasks', component: TasksList, auth: true },
   { path: '/tasks/new', component: TaskCreate, auth: true },
   { path: '/profile', component: Profile, auth: true },
@@ -22,4 +25,3 @@ export default [
   { path: '/about', component: About, auth: true },
   { path: '*', component: NotFound, auth: false },
 ]
-

@@ -13,4 +13,11 @@ export const updateTask = (id, { Title, detail, initDate, endDate, stageName }) 
     auth: true,
   })
 
+// Delete a task by id
+export const deleteTask = (id) =>
+  http(`/tasks/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    auth: true,
+  })
+
 

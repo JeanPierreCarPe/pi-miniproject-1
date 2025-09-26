@@ -21,4 +21,7 @@ export const resetPassword = ({ token, newPassword }) =>
 export const updateProfile = ({ firstname, lastname, age, email }) =>
   http('/auth/users/me', { method: 'PUT', body: { firstname, lastname, age, email }, auth: true })
 
+export const deleteAccount = ({ password, confirmation }) =>
+  http('/auth/users/me', { method: 'DELETE', body: { password, confirmation }, auth: true })
+
 

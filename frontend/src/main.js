@@ -3,7 +3,7 @@
  * Initializes the SPA router, sets up layout, and handles global UI elements like sidebar and logout
  */
 import { startRouter } from './router/index'
-import { showModal } from './components/Modal'
+import { showModal, showToast } from './components/Modal.js'
 import './styles/base.css'
 import './styles/layout.css'
 import './styles/form.css'
@@ -34,7 +34,7 @@ function handleDirectURLs() {
   // If accessing root path without hash, set initial hash based on auth status
   if (path === '/' && !window.location.hash) {
     const hasToken = !!localStorage.getItem('auth_token')
-    const initialHash = hasToken ? '#/tasks' : '#/login'
+    const initialHash = hasToken ? '#/tasks' : '#/inicio'
     console.log('Setting initial hash:', initialHash)
     window.location.hash = initialHash
   }
@@ -185,13 +185,15 @@ async function syncActiveLink() {
   // Import isAuthenticated dynamically to avoid circular imports
   const { isAuthenticated } = await import('./state/authStore.js')
   const authed = isAuthenticated()
-  const authRoute = ['#/login','#/signup'].includes(window.location.hash)
-  // Reset password routes deshabilitadas: '#/forgot-password','#/reset-password','#/reset'
-  document.getElementById('sidebar').style.display = authed && !authRoute ? 'flex' : 'none'
-  document.getElementById('menuToggle').style.display = authed && !authRoute ? 'block' : 'none'
+  // Rutas públicas donde la sidebar NO debe mostrarse
+  const publicRoutes = ['#/','#/inicio','#/login','#/signup','#/forgot-password','#/reset-password','#/reset']
+  const currentHash = window.location.hash || '#/'
+  const isPublicRoute = publicRoutes.includes(currentHash)
+  document.getElementById('sidebar').style.display = authed && !isPublicRoute ? 'flex' : 'none'
+  document.getElementById('menuToggle').style.display = authed && !isPublicRoute ? 'block' : 'none'
   
   // Update user info when authenticated
-  if (authed && !authRoute) {
+  if (authed && !isPublicRoute) {
     updateUserInfo()
   }
 }
@@ -212,6 +214,28 @@ if (viewElement) {
 // Start token expiration checking
 import('./state/authStore.js').then(({ startTokenExpirationCheck }) => {
   startTokenExpirationCheck()
+})
+
+// Event listener for task deletion modal
+window.addEventListener('openTaskDeleteModal', async (e) => {
+  const task = e.detail.task
+  
+  // Mostrar el modal de confirmación
+  const confirmed = await showModal({
+    title: 'Eliminar tarea',
+    message: `¿Seguro que deseas eliminar la tarea <strong>${task.Title}</strong>?`,
+    confirmText: 'Sí, eliminar',
+    cancelText: 'Cancelar',
+    type: 'error'
+  })
+
+  if (confirmed) {
+    // Lanza el evento real de eliminación
+    window.dispatchEvent(new CustomEvent('deleteTask', { detail: { task } }))
+    
+    // Muestra notificación de éxito
+    showToast('Tarea eliminada con éxito', 'success')
+  }
 })
 
 } // End of block
